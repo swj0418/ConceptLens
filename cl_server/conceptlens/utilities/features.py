@@ -37,23 +37,6 @@ def _center(wf, of, c_mode, wm):
 
 
 def _feature_centering(walk_features, original_features, code_selection, direction_selection, centering, prior_subset=False, w_mean=None):
-    """
-    Centers a feature shaped [code, direction, feature]. subset_code_mean requires subset gathering prior to centering,
-    whereas other use-cases subset
-
-    Args:
-        centering: Centering option. 'individual' for centering per individual code. 'global' for centering all codes
-        and directions with global mean.
-        original_features: embedding of original images.
-        code_selection: Index to select along code dimension. [] for no selection, [<int>] for selection
-        direction_selection: Selection of directions indices.
-        centering: centering methods
-        prior_subset: controls whether to subset prior to centering.
-        w_mean: mean of original embeddings.
-
-    Returns:
-
-    """
     assert centering in [None, 'individual_code_mean', 'all_code_mean', 'w_mean', 'global_mean']
 
     # print(centering, code_selection, direction_selection)
@@ -82,15 +65,6 @@ def _feature_centering_2(walk_features, original_features, centering, w_mean=Non
 
 
 def compute_mean_features(features):
-    """
-    Description here
-
-    Args:
-        experiment_names:
-
-    Returns:
-
-    """
     # This tensor is used to compute hierarchical clustering.
     centered_mean_features = torch.mean(features, dim=0)  # [direction x N, feature_dim] 360, 512
 
@@ -99,16 +73,6 @@ def compute_mean_features(features):
 
 
 def compute_euclidean_distance(features, maintain_diagonal):
-    """
-    Computes code-wise cosine similarity of directions excluding self distance.
-
-    Args:
-        features:
-        maintain_diagonal:
-
-    Returns:
-
-    """
     def _get_off_diagonal_elements(M):
         return M[~torch.eye(*M.shape, dtype=torch.bool)].view(M.shape[0], M.shape[1] - 1)
 
@@ -134,16 +98,6 @@ def compute_euclidean_distance(features, maintain_diagonal):
 
 
 def compute_cosine_distance(features, maintain_diagonal):
-    """
-    Computes code-wise cosine similarity of directions excluding self distance.
-
-    Args:
-        features:
-        maintain_diagonal:
-
-    Returns:
-
-    """
     def _get_off_diagonal_elements(M):
         return M[~torch.eye(*M.shape, dtype=torch.bool)].view(M.shape[0], M.shape[1] - 1)
 
@@ -169,35 +123,55 @@ def compute_cosine_distance(features, maintain_diagonal):
     return feature_cosine_distance
 
 
-def postprocess_magnitude_features(walk_features,
-                                  original_features,
-                                  code_selection=None,
-                                  direction_selection=None):
-    """
-    Magnitude features are always a diff vector without centering.
+# def postprocess_magnitude_features(walk_features,
+#                                   original_features,
+#                                   code_selection=None,
+#                                   direction_selection=None):
+#     if direction_selection:
+#         walk_features = walk_features[:, direction_selection]
+#
+#     if code_selection:
+#         walk_features = walk_features[code_selection]
+#         original_features = original_features[code_selection]
+#     print(walk_features.shape, original_features.shape)
+#
+#     # features = walk_features - original_features.unsqueeze(1).repeat(1, walk_features.shape[1], 1)
+#     features = walk_features - original_features.unsqueeze(1).repeat(1, walk_features.shape[0], 1)
+#     print(features.shape)
+#     return features
 
-    Args:
-        walk_features:
-        original_features:
-        mode:
-        code_selection:
-        direction_selection:
-        centering:
-        prior_subset:
-        w_mean:
-        normalize:
+def postprocess_magnitude_features(walk_features, original_features, code_selection=None, direction_selection=None):
+    """
+    Postprocesses magnitude features by computing differences between walk and original features.
+
+    Parameters:
+        walk_features (torch.Tensor): The features derived from walks.
+        original_features (torch.Tensor): The original features to compare against.
+        code_selection (slice or list, optional): Specifies indices for selecting subsets of data.
+        direction_selection (slice or list, optional): Specifies indices for selecting specific directions.
 
     Returns:
-
+        torch.Tensor: The feature differences.
     """
-    if direction_selection:
+    if direction_selection is not None:
         walk_features = walk_features[:, direction_selection]
 
-    if code_selection:
+    if code_selection is not None:
         walk_features = walk_features[code_selection]
         original_features = original_features[code_selection]
 
-    features = walk_features - original_features.unsqueeze(1).repeat(1, walk_features.shape[1], 1)
+    # print(f"walk_features shape: {walk_features.shape}, original_features shape: {original_features.shape}")
+
+    # Compute the difference tensor
+    if len(walk_features.shape) == 2:
+        n_code = original_features.shape[0]
+        walk_features = walk_features.reshape(shape=(n_code, int(walk_features.shape[0] / n_code), walk_features.shape[1]))
+        features = walk_features - original_features.unsqueeze(1).expand_as(walk_features)
+        # features = features.flatten(start_dim=0, end_dim=1)
+    else:
+        features = walk_features - original_features.unsqueeze(1).expand_as(walk_features)
+
+    # print(f"Computed features shape: {features.shape}")
     return features
 
 
@@ -235,22 +209,6 @@ def postprocess_variance_features(walk_features,
                                   prior_subset=False,
                                   w_mean=None,
                                   normalize=False):
-    """
-
-    Args:
-        walk_features:
-        original_features:
-        mode:
-        code_selection:
-        direction_selection:
-        centering:
-        prior_subset:
-        w_mean:
-        normalize:
-
-    Returns:
-
-    """
     if prior_subset:
         walk_features, original_features = _subsetting(walk_features, original_features, direction_selection, code_selection)
 
@@ -289,18 +247,6 @@ def compute_mean_features_pairwise_distances(features: torch.Tensor, dist_metric
     Returns:
 
     """
-
-    # Centering the whole dataset - this is done in the feature post-processing.
-    # if centering:
-    #     # features = features - torch.mean(features, dim=(0, 1))
-    #
-    #     # Huh..?
-    #     centering_mean = torch.mean(torch.mean(features, dim=0), dim=0)
-    #     features = features - centering_mean
-    #
-    #     # So apparently, these two codes are different. The bottom one gives pdsit that is not nan while the
-    #     # upper one does.. Why?
-
     # Compute pairwise distance of directions for each code.
     pairwise_distance = []
     for feat in features:
@@ -310,71 +256,3 @@ def compute_mean_features_pairwise_distances(features: torch.Tensor, dist_metric
 
     mean_pairwise_distance = torch.mean(pairwise_distance, dim=0)  # Code average
     return mean_pairwise_distance
-
-
-# def postprocess(walk_features,
-#                 original_features,
-#                 mode,
-#                 code_selection=None,
-#                 direction_selection=None,
-#                 centering=None,
-#                 prior_subset=False,
-#                 w_mean=None,
-#                 normalize=False):
-#     """
-#     Postprocess image embeddings of form [code, direction, feature dimension].
-#     First filters selected code / direction.
-#     Next, centers the data w.r.t. centering parameters.
-#     Lastly, subtract or return the whole feature.
-#
-#     Args:
-#         walk_features: embedding of walked images.
-#         original_features: embedding of original images.
-#         code_selection: Index to select along code dimension. [] for no selection, [<int>] for selection
-#         direction_selection: Selection of directions indices.
-#         mode: Whether to take a difference [diff], or the ending feature [end].
-#         normalize: Row normalize feature tensors.
-#         centering: centering methods
-#         prior_subset: controls whether to subset prior to centering.
-#         w_mean: mean of original embeddings.
-#
-#     Returns:
-#
-#     """
-#     assert len(walk_features.shape) == 3
-#     assert len(original_features.shape) == 2
-#     assert type(code_selection) is list or code_selection.__eq__(None)
-#     assert mode in ['end', 'diff']
-#
-#     original_features_p, walk_features_p = original_features, walk_features
-#     if centering:
-#         walk_features_p = _feature_centering(walk_features_p,
-#                                              original_features_p,
-#                                              code_selection,
-#                                              direction_selection,
-#                                              centering,
-#                                              prior_subset,
-#                                              w_mean)
-#
-#     if not centering and prior_subset:
-#         features = walk_features
-#         # For just magnitudes computation.
-#         if direction_selection:
-#             features = features[:, direction_selection]
-#
-#         if code_selection:
-#             features = features[code_selection]
-#             original_features = original_features[code_selection]
-#
-#     if mode == 'end':
-#         features = walk_features_p
-#     elif mode == 'diff':
-#         if not centering and prior_subset:
-#             features = features - original_features.unsqueeze(1).repeat(1, features.shape[1], 1)
-#         else:
-#             features = walk_features_p - original_features.unsqueeze(1).repeat(1, walk_features_p.shape[1], 1)
-#
-#     if normalize:
-#         features = features / torch.norm(features, dim=-1, keepdim=True)
-#
-#     return features

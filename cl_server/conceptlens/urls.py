@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views_metadata, views
-from .legacy import views_old
 
 urlpatterns = [
     path('available_experiments', views_metadata.available_experiments, name='available_experiments'),

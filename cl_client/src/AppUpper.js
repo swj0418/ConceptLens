@@ -13,10 +13,18 @@ const EXPERIMENTS = {
         {id: "ldm_celeba256-vac-global-all", name: "LDM CelebA VAC Global"},
         {id: "s2_celeba256-vac-global-early_0", name: "CelebA VAC Global Early 0"},
         {id: "s2_celeba256-sefakmc-global-early_0", name: "CelebA SeFA Global Early 0"},
-        {id: "s2_celeba256-sefakmc-global-early_1", name: "CelebA SeFA Global Early 1"}
+        {id: "s2_celeba256-sefakmc-global-early_1", name: "CelebA SeFA Global Early 1"},
+        {id: "s2_celeba256-sefakmc-global-middle_0", name: "CelebA SeFA Global Middle 0"},
+        {id: "s2_celeba256-sefakmc-global-middle_1", name: "CelebA SeFA Global Middle 1"},
     ],
     "FFHQ 256": [
-        {}
+        {id: "s2_ffhq256-sefakmc-global-early_0", name: "FFHQ SeFA Global Early 0"},
+        {id: "s2_ffhq256-sefakmc-global-early_1", name: "FFHQ SeFA Global Early 1"},
+        {id: "s2_ffhq256-sefakmc-global-middle_0", name: "FFHQ SeFA Global Middle 0"},
+        {id: "s2_ffhq256-sefakmc-global-middle_1", name: "FFHQ SeFA Global Middle 1"},
+    ],
+    "FFHQ 256 Vector Arithmetic": [
+        {id: "s2_ffhq256-vac-global-early_0", name: "FFHQ VAC Global Early 0"},
     ]
 };
 

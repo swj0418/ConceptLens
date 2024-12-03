@@ -23,14 +23,12 @@ def parse_layer_configuration(layer_name, generator_size):
             layer_range = [4, 5]
         elif layer_name == 'middle_1':
             layer_range = [6, 7]
-        elif layer_name == 'middle_2':
-            layer_range = [8, 9]
         elif layer_name == 'late':
             layer_range = [8, 9, 10, 11]
         elif layer_name == 'late_0':
-            layer_range = [10, 11]
+            layer_range = [8, 9]
         elif layer_name == 'late_1':
-            layer_range = [12]
+            layer_range = [10, 11]
         elif layer_name == 'all':
             layer_range = [_ for _ in range(14)]
     elif generator_size == 15:

@@ -381,6 +381,11 @@ export default class App extends Component {
             console.log("Selecting code after re-clustering")
             directionData = await this.fetchDirectionHierarchyInitialization([])
             tree = directionData.tree
+            directionData.contributions = []
+            directionData.magmin = 0
+            directionData.magmax = 1
+            // Contribution need to be input
+
         } else {
             directionData = await this.fetchCodeHierarchySelectionData(
                 this.state.directionHierarchyInitialData,
@@ -403,12 +408,18 @@ export default class App extends Component {
         let filteredHierarchy = this.computeFilteredHierarchy(codeTree, newChildNodes, 'vertical')
         let positionalHierarchyCodeBitree = this.computePositionalHierarchy(filteredHierarchy, 'vertical')
 
+        console.log(directionData)
+
         let avgMagnitude = directionData.avgMagnitude
         let avgStd = directionData.avgStd
         let magsStd = directionData.magsStd
         let stdsStd = directionData.stdsStd
+        let contributions = directionData.contributions
+        let magmin = directionData.magmin
+        let magmax = directionData.magmax
 
-        return {positionalHierarchyCodeBitree, positionalHierarchyDirectionIcicle, avgMagnitude, avgStd, magsStd, stdsStd}
+        return {positionalHierarchyCodeBitree, positionalHierarchyDirectionIcicle, avgMagnitude, avgStd, magsStd, stdsStd,
+        contributions, magmin, magmax}
     }
 
     async verticalIcicleListener(selectedCodeNodes, start, end) { // console.log("Action from vertical icicle plot")
@@ -429,18 +440,7 @@ export default class App extends Component {
         let updated = await this.verticalIcicleUpdateLogic(newChildNodes)
 
         if (this.state.justReclustered) {
-            // let directionTree = this.state.directionHierarchyBitreeData
-            // let filteredHierarchy = this.computeFilteredHierarchy(directionTree, leafNodeIndices, 'horizontal')
-            // let positionalHierarchyDirectionBitree = this.computePositionalHierarchy(filteredHierarchy, 'horizontal')
             this.setupVisualization()
-            // Also set variance range
-            // this.setState({
-            //     dirAvgMagnitude: updated.avgMagnitude,
-            //     dirAvgStd: updated.avgStd,
-            //     magsStd: updated.magsStd,
-            //     stdsStd: updated.stdsStd,
-            //     positionalHierarchyDirectionBitree: structuredClone(updated.positionalHierarchyDirectionIcicle)
-            // })
         }
 
         this.setState({
@@ -448,7 +448,10 @@ export default class App extends Component {
             selectedCodeLeaves: newChildNodes, // Actual leaf nodes
             positionalHierarchyCodeBitree: updated.positionalHierarchyCodeBitree, // For BiTree
             positionalHierarchyDirectionIcicle: updated.positionalHierarchyDirectionIcicle, // For Icicle plot
-            justReclustered: false
+            justReclustered: false,
+            contributions: updated.contributions,
+            magmin: updated.magmin,
+            magmax: updated.magmax
         })
     }
 
@@ -505,15 +508,7 @@ export default class App extends Component {
         let updated = await this.verticalIcicleUpdateLogic(newChildNodes)
 
         if (this.state.justReclustered) {
-            // Also set variance range
             this.setupVisualization()
-            // this.setState({
-            //     dirAvgMagnitude: updated.avgMagnitude,
-            //     dirAvgStd: updated.avgStd,
-            //     magsStd: updated.magsStd,
-            //     stdsStd: updated.stdsStd,
-            //     positionalHierarchyDirectionBitree: structuredClone(updated.positionalHierarchyDirectionIcicle)
-            // })
         }
 
         this.setState({
@@ -521,7 +516,10 @@ export default class App extends Component {
             selectedCodeLeaves: newChildNodes, // Actual leaf nodes
             positionalHierarchyCodeBitree: updated.positionalHierarchyCodeBitree, // For BiTree
             positionalHierarchyDirectionIcicle: updated.positionalHierarchyDirectionIcicle, // For Icicle plot
-            justReclusterd: false
+            justReclusterd: false,
+            contributions: updated.contributions,
+            magmin: updated.magmin,
+            magmax: updated.magmax
         })
     }
 
@@ -561,7 +559,10 @@ export default class App extends Component {
                 selectedCodeLeaves: clickedCodeNodes, // Actual leaf nodes
                 positionalHierarchyCodeBitree: updated.positionalHierarchyCodeBitree, // For BiTree
                 positionalHierarchyDirectionIcicle: updated.positionalHierarchyDirectionIcicle, // For Icicle plot
-                justReclustered: false
+                justReclustered: false,
+                contributions: updated.contributions,
+                magmin: updated.magmin,
+                magmax: updated.magmax
             })
 
         }
@@ -865,7 +866,10 @@ export default class App extends Component {
             .then(data => {
                 console.log("Direction Tree: ", data.directionTree)
                 let directionTree = data.directionTree
-                return {directionTree}
+                let contributions = data.contributions
+                let magmin = data.magmin
+                let magmax = data.magmax
+                return {directionTree, contributions, magmin, magmax}
             })
         return data
     }

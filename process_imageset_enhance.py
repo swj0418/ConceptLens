@@ -142,6 +142,11 @@ class ImageSetProcessorV3:
                 cached_tensors.append(torch.load(cache_fp))
 
         consolidated_features = torch.cat(cached_tensors, dim=0)
+
+        # Reshape
+        consolidated_features = consolidated_features.reshape(shape=(self.n_code, self.n_direction, -1))
+        print(consolidated_features.shape)
+
         torch.save(consolidated_features, os.path.join(self.tensor_fp, 'features.pt'))
 
         # Clean up cache files

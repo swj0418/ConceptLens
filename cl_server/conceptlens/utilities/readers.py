@@ -36,9 +36,12 @@ def load_walk_features(data_root):
 
     """
     tensor_root = os.path.join(data_root, 'tensors')
+    walks = torch.load(os.path.join(tensor_root, 'features.pt'), map_location='cpu', weights_only=False)
+    if len(walks.shape) == 2:
+        walks = walks.reshape(shape=(200, int(walks.shape[0] / 200), walks.shape[1]))
 
     # [Code, Direction, Feature]
-    return torch.load(os.path.join(tensor_root, 'features.pt'), map_location='cpu', weights_only=False)
+    return walks
 
 
 def load_original_features(data_root) -> torch.Tensor:
@@ -161,6 +164,7 @@ def read_walk_latent_codes(experiment_names, served_data_root='served_data') -> 
     cumulative_dfm_size = _compute_cumulative_dfm_size(walk_features)
 
     walk_features = torch.cat(walk_features, dim=1)
+    print(f"Walk Latent Shape: {walk_features.shape}")
     return walk_features, cumulative_dfm_size
 
 
