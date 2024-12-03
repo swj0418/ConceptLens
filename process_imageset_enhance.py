@@ -67,7 +67,8 @@ class ImageSetProcessorV3:
 
         self.feature_extraction_method, self.feature_extractor = feature_extraction_method, None
         if feature_extraction_method == 'clip':
-            self.feature_extractor = CLIPTransform(self.device, clip_model='ViT-L/14')
+            # self.feature_extractor = CLIPTransform(self.device, clip_model='ViT-L/14')
+            self.feature_extractor = CLIPTransform(self.device, clip_model='ViT-H-14-378-quickgelu')
         else:
             raise Exception(f"Feature Extraction Method {feature_extraction_method} is not implemented.")
 

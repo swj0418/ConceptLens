@@ -3,6 +3,7 @@ from abc import abstractmethod
 import PIL.PngImagePlugin
 from PIL import Image
 
+import open_clip
 import clip
 import numpy as np
 import torch
@@ -71,7 +72,9 @@ class CLIPTransform(FeatureTransforms):
         # Preprocess (448, 448)
         # mean=(0.48145466, 0.4578275, 0.40821073),
         # std=(0.26862954, 0.26130258, 0.27577711))
-        self.model, self.preprocess = clip.load(clip_model, device=self.device)
+        # self.model, self.preprocess = clip.load(clip_model, device=self.device)
+        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_name='ViT-H-14-378-quickgelu', pretrained='dfn5b')
+        self.model = self.model.cuda()
         self.output_dim = self.model.visual.output_dim
 
     def preprocess_image(self, image):
