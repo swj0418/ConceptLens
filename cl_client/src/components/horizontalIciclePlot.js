@@ -15,7 +15,8 @@ export default class HorizontalIciclePlot extends Component {
             paddingInner: 0.01,
             paddingOuter: 0.01,
             experimentNames: null,
-            timestamp: 0
+            timestamp: 0,
+            hiftPressed: false, // Track Shift key state
         }
 
         var filter = d3.select(this.gref.current).append("defs")
@@ -179,85 +180,6 @@ export default class HorizontalIciclePlot extends Component {
 
         // Visual retention
         this.nodeHighlighting(this.props.getSelectionDirection().map(d => d.name))
-
-        // // Select visual leaf nodes
-        // let leaf_nodes = d3.select(this.gref.current)
-        //     .selectAll('.iciclenode')
-        //     .filter(d => d.depth === this.props.visDepth)
-        //
-        // // Gather all leaves and compute bar plot scale
-        // // For x scale and bar plot width.
-        // const leafRectWidths = leaf_nodes.selectAll('rect').nodes().map(node => node.getBBox().width)
-        //
-        // // Scales
-        // const magnitudes = rootNodeG.data()[0].leaves.map(d => d.magnitude)
-        //
-        // const barScaleXs = []
-        // let count = 0
-        // for (const g of leaf_nodes) {
-        //     const tmpScaleX = d3.scaleLinear()
-        //         .domain([0, d3.select(g).data()[0].leaves.length])
-        //         .range([0, leafRectWidths[count]])
-        //     barScaleXs.push(tmpScaleX)
-        //     count++
-        // }
-        // // const barScaleY = d3.scaleLinear().domain(d3.extent(magnitudes)).range([0, this.state.depthScale.bandwidth()])
-        // const barScaleY = d3.scaleLinear().domain([0, this.props.magnitudeCeil]).range([0, this.state.depthScale.bandwidth()])
-        // // console.log(d3.extent(magnitudes))
-        //
-        // // Draw bar plots inside each g
-        // count = -1
-        // let count2 = -1
-        // let count3 = -1
-        // leaf_nodes.selectAll()
-        //     .data(d => {
-        //         count++
-        //         return d.leaves
-        //     })
-        //     .enter()
-        //     .append('rect')
-        //     .attr('x', (d, i) => {
-        //         const x = barScaleXs[count](i)
-        //         return x
-        //     })
-        //     .attr('y', (d, i) => {
-        //         count2++
-        //         // console.log(d.magnitude, magnitudes[count2], i)
-        //         const y = this.state.depthScale.bandwidth() * (this.state.visDepth)
-        //             + (this.state.depthScale.bandwidth() - barScaleY(magnitudes[count2]))
-        //         return y
-        //     })
-        //     .attr('width', (d, i) => {
-        //         const availableWidth = leafRectWidths[count];
-        //         const numberOfLeaves = d3.select(this.gref.current).selectAll('.iciclenode').filter(d => d.depth === this.props.visDepth).data()[count].leaves.length;
-        //         return availableWidth / (numberOfLeaves + 0.5);
-        //     })
-        //     .attr('height', d => {
-        //         count3++
-        //         return barScaleY(magnitudes[count3])
-        //     })
-        //     .attr('fill', d3.hcl(100, 0, 80))
-        //     .raise()
-        //     .on('mouseover', function() {
-        //         d3.select(this).classed('hover', true)
-        //     })
-        //     .on('mouseout', function() {
-        //         d3.select(this).classed('hover', false)
-        //     })
-        //     .on('click', this.clickBarAction)
-
-        // // Node Max Line
-        // d3.select(this.gref.current).select('.upperlimitline').remove()
-        // d3.select(this.gref.current).append('line')
-        //     .attr('x1', 0)
-        //     .attr('y1', this.state.depthScale.bandwidth() * (this.props.visDepth))
-        //     .attr('x2', this.props.size[0])
-        //     .attr('y2', this.state.depthScale.bandwidth() * (this.props.visDepth))
-        //     .style('stroke', 'black')
-        //     .style('stroke-width', 2)
-        //     .style('opacity', 0.3)
-        //     .classed('upperlimitline', true)
-
     }
 
     removeItemOnce(arr, value) {

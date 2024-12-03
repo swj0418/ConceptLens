@@ -60,6 +60,21 @@ export default class AppUpper extends Component {
             port: 37203
         };
 
+        // Meta listener
+        document.addEventListener ('keydown', function (event) {
+            if (event.shiftKey) {
+                // Raise brush
+                d3.selectAll('.brush').raise()
+            }
+        });
+
+        document.addEventListener ('keydown', function (event) {
+            if (event.ctrlKey) {
+                // Raise brush
+                d3.selectAll('.brush').lower()
+            }
+        });
+
         this.requestAvailableExperiments = this.requestAvailableExperiments.bind(this);
         this.requestAvailableExperiments();
         this.checkboxOnChange = this.checkboxOnChange.bind(this);
@@ -70,6 +85,8 @@ export default class AppUpper extends Component {
         this.visDepthOnChange = this.visDepthOnChange.bind(this);
         this.truncatedTreeOnChange = this.truncatedTreeOnChange.bind(this);
     }
+
+
 
     checkboxOnChange(e) {
         let newExperimentNames = [...this.state.experimentNames];

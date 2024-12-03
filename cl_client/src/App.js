@@ -147,19 +147,6 @@ export default class App extends Component {
             // Contributions
             contributions: [],
 
-            // // Color Scale
-            // methodColorScale: {
-            //     'hue': d3.scaleOrdinal(
-            //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-            //         [100, 20, 243, 120, 120, 12, 12, 86, 243, 100, 45, 180, 243, 12]),
-            //     'chr': d3.scaleOrdinal(
-            //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-            //         [84, 50, 87, 66, 66, 49, 49, 37, 27, 87, 27, 77, 87, 49]),
-            //     'lum': d3.scaleOrdinal(
-            //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-            //         [43, 80, 69, 80, 80, 70, 70, 99, 91, 69, 91, 88, 69, 70]),
-            //     'lay': d3.scaleOrdinal(['early', 'middle', 'late'], [0, 25, 50]),
-            // },
             // Color Scale
             methodColorScale: {
                 'hue': d3.scaleOrdinal(
@@ -179,13 +166,6 @@ export default class App extends Component {
                     [0, 40, 60]
                 ),
             },
-
-            // Color Scal,// methodColorScale: {
-            //     'hue': d3.scaleOrdinal(["true", "false"], [243, 12, 86, 45]),
-            //     'chr': d3.scaleOrdinal(["true", "false"], [87, 49, 37, 27]),
-            //     'lum': d3.scaleOrdinal(["true", "false"], [69, 70,  99, 91]),
-            //     'lay': d3.scaleOrdinal(['early', 'middle', 'late'], [0, 25, 50]),
-            // },
 
             // Infra
             port: 37203
@@ -407,8 +387,6 @@ export default class App extends Component {
         let codeTree = structuredClone(this.state.codeHierarchyBitreeData)
         let filteredHierarchy = this.computeFilteredHierarchy(codeTree, newChildNodes, 'vertical')
         let positionalHierarchyCodeBitree = this.computePositionalHierarchy(filteredHierarchy, 'vertical')
-
-        console.log(directionData)
 
         let avgMagnitude = directionData.avgMagnitude
         let avgStd = directionData.avgStd
