@@ -174,158 +174,96 @@ export default class BiTree extends Component {
                 .attr('opacity', 1) // Final opacity
         }
 
-        let insertCodeGlyphSparkline = (selection, dIdx, width) => {
-            let data = [];
-            try {
-                data = this.state.directionGroupedMagnitude[dIdx][1].map(d => d.mag_contribution);
-            } catch (e) {
-            }
-
-            // Define scales for x and y
-            const xScale = d3.scaleLinear()
-                .domain([0, data.length - 1]) // Map indices to width
-                .range([0, width]);
-
-            const yScale = d3.scaleLinear()
-                // .domain([d3.min(data) || 0, d3.max(data) || 1]) // Map data values to height
-                .domain([0, d3.max(data) || 1]) // Map data values to height
-                .range([20, 0]); // Inverted for a top-down coordinate system
-
-            // Add a container rect
-            selection
-                .append('rect')
-                .attr('width', width)
-                .attr('height', 20)
-                .attr('fill', 'none')
-                .attr('stroke', 'black');
-
-            // Create area generator
-            const areaGenerator = d3.area()
-                .x((_, i) => xScale(i)) // X position is based on index
-                .y0(20) // Bottom of the area
-                .y1(d => yScale(d)) // Top of the area based on data
-                .curve(d3.curveBasis); // Smooth curve
-
-            // Create line generator
-            const lineGenerator = d3.line()
-                .x((_, i) => xScale(i)) // X position is based on index
-                .y(d => yScale(d)) // Y position is based on data
-                .curve(d3.curveBasis); // Smooth curve
-
-            // Append the filled area
-            selection
-                .append('path')
-                .datum(data) // Bind data
-                .attr('d', areaGenerator) // Generate path data for the area
-                .attr('fill', 'lightblue') // Fill color for the area
-                .attr('opacity', 0.7);
-
-            // Append the sparkline
-            selection
-                .append('path')
-                .datum(data) // Bind data
-                .attr('d', lineGenerator) // Generate path data for the line
-                .attr('stroke', 'black')
-                .attr('stroke-width', 1.5)
-                .attr('fill', 'none');
-        };
-
-        let insertDirectionGlyphSparkline = (selection, cIdx, width) => {
-            let data = [];
-            try {
-                data = this.state.codeGroupedMagnitude[cIdx][1].map(d => d.mag_contribution);
-            } catch (e) {
-            }
-
-            // Define scales for x and y
-            const yScale = d3.scaleLinear()
-                .domain([0, data.length - 1]) // Map indices to height
-                .range([0, width]);
-
-            const xScale = d3.scaleLinear()
-                // .domain([d3.min(data) || 0, d3.max(data) || 1]) // Map data values to width
-                .domain([0, d3.max(data) || 1]) // Map data values to width
-                .range([0, 20]);
-
-            // Add a container rect
-            selection
-                .append('rect')
-                .attr('width', 20)
-                .attr('height', width)
-                .attr('fill', 'none')
-                .attr('stroke', 'black');
-
-            // Create area generator
-            const areaGenerator = d3.area()
-                .x(d => xScale(d)) // X position is based on data
-                .y0(width) // Bottom of the area
-                .y1((_, i) => yScale(i)) // Top of the area based on index
-                .curve(d3.curveBasis); // Smooth curve
-
-            // Create line generator
-            const lineGenerator = d3.line()
-                .x(d => xScale(d)) // X position is based on data
-                .y((_, i) => yScale(i)) // Y position is based on index
-                .curve(d3.curveBasis); // Smooth curve
-
-            // Append the filled area
-            selection
-                .append('path')
-                .datum(data) // Bind data
-                .attr('d', areaGenerator) // Generate path data for the area
-                .attr('fill', 'lightblue') // Fill color for the area
-                .attr('opacity', 0.7);
-
-            // Append the sparkline
-            selection
-                .append('path')
-                .datum(data) // Bind data
-                .attr('d', lineGenerator) // Generate path data for the line
-                .attr('stroke', 'black')
-                .attr('stroke-width', 1.5)
-                .attr('fill', 'none');
-        };
-
-        let insertCodeGlyph = (selection, dIdx, width) => {
+        let insertCodeGlyph = (selection, dIdx, width, leftCol, firstOne) => {
             let data = []
             try {
                 data = this.state.directionGroupedMagnitude[dIdx][1].map(d => d.mag_contribution)
             } catch (e) {
             }
-            console.log("Code glyph data ", data)
 
-            // Define scales for height and width
-            const heightScale = d3.scaleLinear()
-                // .domain([d3.min(data) || 0, d3.max(data) || 1]) // Avoid NaN issues with empty data
-                // .domain([0, d3.max(data) || 1]) // Avoid NaN issues with empty data
-                .domain([this.state.magmin, this.state.magmax || 1]) // Avoid NaN issues with empty data
-                .range([0, 20]);
+        // Define scales for height and width
+        const heightScale = d3.scaleLinear()
+            .domain([this.state.magmin, this.state.magmax || 1]) // Avoid NaN issues with empty data
+            .range([0, 20]);
 
-            const widthScale = d3.scaleBand()
-                .domain(d3.range(data.length)) // Correctly set the domain for band scale
-                .range([0, width])
-                .padding(0.1); // Add padding for better visuals
+        const widthScale = d3.scaleBand()
+            .domain(d3.range(data.length)) // Correctly set the domain for band scale
+            .range([0, width])
+            .padding(0.1); // Add padding for better visuals
 
-            // Add a container rect
-            selection
-                .append('rect')
-                .attr('width', width)
-                .attr('height', 20)
-                .attr('fill', 'none')
-                .attr('stroke', 'black');
+        // Add a container rect
+        selection
+            .append('rect')
+            .attr('width', width)
+            .attr('height', 20)
+            .attr('fill', d3.hcl(200, 1, 95))
+            .attr('stroke', 'black')
+            .attr('stroke-width', 0.1)
 
-            // Append a `g` element to hold the bars
-            const barsGroup = selection.append('g');
+        // Append a `g` element to hold the bars
+        const barsGroup = selection.append('g');
 
-            // Bind data to bars
-            barsGroup.selectAll('rect')
-                .data(data)
-                .join('rect') // Use join pattern for enter/update/exit handling
-                .attr('x', (d, i) => widthScale(i)) // Calculate x position using widthScale
-                .attr('y', d => 20 - heightScale(d)) // Align bars to the bottom
-                .attr('width', widthScale.bandwidth()) // Set bar width
-                .attr('height', d => heightScale(d)) // Set bar height
+        // Bind data to bars
+        barsGroup.selectAll('rect')
+            .data(data)
+            .join('rect') // Use join pattern for enter/update/exit handling
+            .attr('x', (d, i) => widthScale(i)) // Calculate x position using widthScale
+            .attr('y', d => 20 - heightScale(d)) // Align bars to the bottom
+            .attr('width', widthScale.bandwidth()) // Set bar width
+            .attr('height', d => heightScale(d)) // Set bar height
+            .attr('fill', d3.hcl(200, 1, 40))
+            .raise();
+
+        // Append ticks (lines and labels)
+        const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
+        const tickScale = d3.scaleLinear()
+            .domain([this.state.magmin, this.state.magmax])
+            .range([20, 0]); // Align with the bar chart's height
+
+        const tickGroup = selection.append('g');
+
+        if (1 === 1) {
+            // Add tick lines
+            tickGroup.selectAll('line')
+                .data(tickValues)
+                .join('line')
+                .attr('x1', 0)
+                .attr('x2', width)
+                .attr('y1', d => tickScale(d))
+                .attr('y2', d => tickScale(d))
+                .attr('stroke', 'black')
+                .attr('stroke-width', 0.5)
+                .attr('stroke-dasharray', '2,2'); // Optional dashed lines for ticks
+        }
+
+        if (leftCol && firstOne) {
+            // Add tick lines
+            tickGroup.selectAll('line')
+                .data(tickValues)
+                .join('line')
+                .attr('x1', 0)
+                .attr('x2', width)
+                .attr('y1', d => tickScale(d))
+                .attr('y2', d => tickScale(d))
+                .attr('stroke', 'black')
+                .attr('stroke-width', 0.5)
+                .attr('stroke-dasharray', '2,2'); // Optional dashed lines for ticks
+
+            // Add tick labels
+            tickGroup.selectAll('text')
+                .data(tickValues)
+                .join('text')
+                .attr('x', -5) // Position labels to the left of the bars
+                .attr('y', d => tickScale(d))
+                .attr('dy', '0em') // Vertically center the text
+                // .attr('dy', '0.35em') // Vertically center the text
+                .attr('text-anchor', 'end') // Align text to the right
+                .text(d => d.toFixed(1)) // Format tick labels
+                // .text(d => d) // Format tick labels
+                .attr('font-size', 8)
                 .attr('fill', 'black');
+        }
+
         }
 
         let insertDirectionGlyph = (selection, cIdx, width) => {
@@ -351,8 +289,9 @@ export default class BiTree extends Component {
                 .append('rect')
                 .attr('width', 20)
                 .attr('height', width)
-                .attr('fill', 'none')
-                .attr('stroke', 'black');
+                .attr('fill', d3.hcl(200, 1, 95))
+                .attr('stroke', 'black')
+                .attr('stroke-width', 0.1)
 
             // Append a `g` element to hold the bars
             const barsGroup = selection.append('g');
@@ -365,20 +304,9 @@ export default class BiTree extends Component {
                 .attr('y', (d, i) => placementScale(i)) // Calculate y position using placementScale
                 .attr('width', d => widthScale(d)) // Calculate y position using widthScale
                 .attr('height', placementScale.bandwidth()) // Set bar height
-                .attr('fill', 'black');
+                .attr('fill', d3.hcl(200, 1, 40))
+                .raise()
         }
-
-        let okayToDrawDGlyph = (count) => {
-            return count < this.state.directionGroupedMagnitude.length;
-        }
-
-        let okayToDrawCGlyph = (count) => {
-            return count < this.state.codeGroupedMagnitude.length;
-        }
-
-        // let topG = selection.filter(d => (d[0].depth === this.state.visDepth && d[1].depth === this.state.visDepth && d[0].leaf)) // Draw only for the top boxes.
-        // let topG = selection.filter(d => d[0].depth === this.state.visDepth && d[1].depth === this.state.visDepth) // Draw only for the top boxes.
-        // topG.attr('width', d => d[0].size).attr('height', d => d[1].size)
 
         // Number of topGs
         let topGcount = selection.size()
@@ -502,9 +430,7 @@ export default class BiTree extends Component {
                     selection
                         .append('g')
                         .attr('transform', `translate(${xPos}, ${yPos - 22})`)
-                        // .call(insertCodeGlyph, h, horizontalScale.bandwidth() / 1.2)
-                        .call(insertCodeGlyph, h, horizontalScale.bandwidth())
-                        // .call(insertCodeGlyphSparkline, h, horizontalScale.bandwidth() / 1.2)
+                        .call(insertCodeGlyph, h, horizontalScale.bandwidth(), leftCol, h === 0)
                     glyphDirectionDrawn++
                 }
 
