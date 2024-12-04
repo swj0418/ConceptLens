@@ -99,12 +99,26 @@ export default class OriginalImagePanel  extends Component {
     setupCodeImages(selection) {
         let methodColorScale = d3.scaleSequential(d3.schemePastel1).domain([0, 1])
 
+        const allPositions = selection.data().map(d => ({
+            rect: d,
+            x: d.absolute_position,
+            y: d.absolute_position,
+        }));
+
+        const minY = d3.min(allPositions, d => d.y);
+        const minX = d3.min(allPositions, d => d.x)
+        const topRowRects = allPositions.filter(d => d.y === minY);
+        const leftColRects = allPositions.filter(d => d.x === minX);
+
+        let glyphCodeDrawn = 0
+        let glyphDirectionDrawn = 0
+
         let getImageLink = (codeIdx, flatIdx, treeID) => {
             let bucketPath = `http://localhost:${this.props.port}/served_data/${this.props.experimentNames[0]}/`
             return bucketPath + 'codes/' + `${codeIdx}.jpg`
         }
 
-        let insertImage = (selection, imageLink, imageSize, xPos, yPos, aorb) => {
+        let insertImage = (selection, imageLink, imageSize, xPos, yPos) => {
             // Sets up single image
             selection
                 .attr('onerror', "this.style.display='none'")
@@ -112,6 +126,14 @@ export default class OriginalImagePanel  extends Component {
                 .attr('transform', `translate(${xPos}, ${yPos})`)
                 .attr('width', d => imageSize)
                 .attr('height', d => imageSize)
+                .attr('opacity', 0)
+                .on('click', function (event, d) {
+                    d3.select(this).raise().transition().duration(500)
+                        .attr('width', d3.select(this).attr('width') == imageSize ? imageSize * 4 : imageSize)
+                        .attr('height', d3.select(this).attr('height') == imageSize ? imageSize * 4 : imageSize)
+                })
+                .transition().duration(10) // Adjust the duration as needed
+                .attr('opacity', 1) // Final opacity
         }
 
         let topG = selection.filter(d => (d.depth === this.state.visDepth)) // Draw only for the top boxes.
@@ -121,11 +143,28 @@ export default class OriginalImagePanel  extends Component {
 
         // Number of topGs
         let topGcount = selection.size()
+        let methodDrawnCount = -1
 
         // scales for individual boxes
         topG.each(function(d, i) {
+            let topRow = false
+            let leftCol = false
+            for (let k in topRowRects) {
+                if (d === topRowRects[k].rect) {
+                    topRow = true
+                }
+            }
+
+            for (let k in leftColRects) {
+                if (d === leftColRects[k].rect) {
+                    leftCol = true
+                }
+            }
+
             const width = 125
             const height = d.size
+            // const height = d.size
+            // const width = d.size, height = d.size
             const selection = d3.select(this)
             let nodeData = selection.data()[0]
 
@@ -133,20 +172,28 @@ export default class OriginalImagePanel  extends Component {
 
             // Determine how many images can fit into each box.
             let horizontalCount = 1
+            // let verticalCount = Math.floor(height / imageSize)  // Code budget
+
+            // Determine how many images can fit into each box.
             let verticalCount = Math.floor(height / imageSize)  // Code budget
+            if (topRow) {
+                verticalCount = Math.floor((height - 24) / imageSize)  // Code budget
+            }
+            console.log("Ori Tree vertical, horizontal budget", verticalCount, horizontalCount)
 
             // Use width and height to determine padding.
             const horizontalPadding = (width - (imageSize * horizontalCount)) / 2
             const verticalPadding = (height - (imageSize * verticalCount)) / 2
 
             const horizontalScale = d3.scaleBand().domain(Array.from({length: horizontalCount}, (_, i) => i))
-                .range([horizontalPadding, width - horizontalPadding]).paddingOuter(0.00).paddingInner(0.1)
+                .range([horizontalPadding, width - horizontalPadding]).paddingOuter(0.1).paddingInner(0.1)
 
             const verticalScale = d3.scaleBand().domain(Array.from({length: verticalCount}, (_, i) => i))
-                .range([verticalPadding, height - verticalPadding]).paddingOuter(0.00).paddingInner(0.1)
+                .range([verticalPadding, height - verticalPadding]).paddingOuter(0.1).paddingInner(0.1)
 
             // Leaf node indices
-            let codeLeaf = accumulateVisLeafNodes(nodeData)
+            // let codeLeaf = accumulateVisLeafNodes(nodeData)
+            let codeLeaf = accumulateLeafNodesBudget(nodeData)
 
             if (codeLeaf.length < verticalCount) {
                 verticalCount = codeLeaf.length
@@ -156,10 +203,16 @@ export default class OriginalImagePanel  extends Component {
 
             for(var v = 0; v < verticalCount; v++) {
                 const imageLink = getImageLink(codeSample[v].name, 0, 0)
+                let xPos = horizontalScale(0)
+                let yPos = verticalScale(v)
+                if (topRow) yPos += 20
                 if (codeSample[v]) {
                     selection
                         .append('image')
-                        .call(insertImage, imageLink, verticalScale.bandwidth(), horizontalScale(0), verticalScale(v))
+                        .call(insertImage, imageLink,
+                            verticalScale.bandwidth(),
+                            xPos,
+                            yPos)
                 }
             }
         })

@@ -22,11 +22,211 @@ const EXPERIMENTS = {
         {id: "s2_ffhq256-sefakmc-global-early_1", name: "FFHQ SeFA Global Early 1"},
         {id: "s2_ffhq256-sefakmc-global-middle_0", name: "FFHQ SeFA Global Middle 0"},
         {id: "s2_ffhq256-sefakmc-global-middle_1", name: "FFHQ SeFA Global Middle 1"},
+        {id: "s2_ffhq256-sefakmc-global-late_0", name: "FFHQ SeFA Global Late 0"},
+        {id: "s2_ffhq256-sefakmc-global-late_1", name: "FFHQ SeFA Global Late 1"},
     ],
-    "FFHQ 256 Vector Arithmetic": [
+    "FFHQ 256 Vector Arithmetic (L14)": [
         {id: "s2_ffhq256-vac-global-early_0", name: "FFHQ VAC Global Early 0"},
+        {id: "s2_ffhq256-vac-global-early_1", name: "FFHQ VAC Global Early 1"},
+        {id: "s2_ffhq256-vac-global-middle_0", name: "FFHQ VAC Global Middle 0"},
+        {id: "s2_ffhq256-vac-global-middle_1", name: "FFHQ VAC Global Middle 1"},
+        {id: "s2_ffhq256-vac-global-middle_2", name: "FFHQ VAC Global Middle 2"},
+        {id: "s2_ffhq256-vac-global-late_1", name: "FFHQ VAC Global Late 0"},
+    ],
+    "CLIP Model Comparison": [
+        {id: "s3df5_landscape256-vac-global-early_0", name: "FFHQ DF5 VAC Global Early 0"},
+        {id: "s3l14_landscape256-vac-global-early_0", name: "FFHQ L14 VAC Global Early 0"}
+    ],
+    "Large Code Base": [
+        {id: "s2_ffhq256-vac-global-early_1L", name: "Large Code Dataset"}
     ]
 };
+
+// const EXPERIMENTS = {
+//     "CelebA": [
+//         {id: "ldm_celeba256-vac-global-all", name: "LDM CelebA VAC Global"},
+//         {id: "s2_celeba256-vac-global-early_0", name: "CelebA VAC Global Early 0"},
+//         {id: "s2_celeba256-sefakmc-global-early_0", name: "CelebA SeFA Global Early 0"},
+//         {id: "s2_celeba256-sefakmc-global-early_1", name: "CelebA SeFA Global Early 1"}
+//     ],
+//     "Large Code Dataset": [
+//         {id: "s2_ffhq256-vac-global-early_1L", name: "Large Code Dataset"}
+//     ],
+//     "1024 AE Global": [
+//         { id: "s2_ffhq1024-ae-global-all", name: "1024 AE Global" }
+//     ],
+//     "1024 VAC Global": [
+//         { id: "s2_ffhq1024-vac-global-all", name: "1024 VAC Global" }
+//     ],
+//     "1024 GANSPACE Global": [
+//         { id: "s2_ffhq1024-ganspacekmc-global-all", name: "1024 GANSPACE Global" }
+//     ],
+//     "Vector Arithmetic - FFHQ, Layerwise": [
+//         { id: "s2_ffhq256-vac-layerwise-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-vac-layerwise-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-vac-layerwise-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-vac-layerwise-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-vac-layerwise-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-vac-layerwise-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-vac-layerwise-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "Vector Arithmetic - FFHQ, Global": [
+//         { id: "s2_ffhq256-vac-global-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-vac-global-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-vac-global-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-vac-global-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-vac-global-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-vac-global-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-vac-global-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "Vector Arithmetic - Wild, Layerwise": [
+//         { id: "s2_wild512-va-layerwise-early_0", name: "S2 Wild Early-0" },
+//         { id: "s2_wild512-va-layerwise-early_1", name: "S2 Wild Early-1" },
+//         { id: "s2_wild512-va-layerwise-middle_0", name: "S2 Wild Middle-0" },
+//         { id: "s2_wild512-va-layerwise-middle_1", name: "S2 Wild Middle-1" },
+//         { id: "s2_wild512-va-layerwise-middle_2", name: "S2 Wild Middle-2" },
+//         { id: "s2_wild512-va-layerwise-late_0", name: "S2 Wild Late-0" },
+//         { id: "s2_wild512-va-layerwise-late_1", name: "S2 Wild Late-1" }
+//     ],
+//     "Vector Arithmetic - Wild, Global": [
+//         { id: "s2_wild512-va-global-early_0", name: "S2 Wild Early-0" },
+//         { id: "s2_wild512-va-global-early_1", name: "S2 Wild Early-1" },
+//         { id: "s2_wild512-va-global-middle_0", name: "S2 Wild Middle-0" },
+//         { id: "s2_wild512-va-global-middle_1", name: "S2 Wild Middle-1" },
+//         { id: "s2_wild512-va-global-middle_2", name: "S2 Wild Middle-2" },
+//         { id: "s2_wild512-va-global-late_0", name: "S2 Wild Late-0" },
+//         { id: "s2_wild512-va-global-late_1", name: "S2 Wild Late-1" }
+//     ],
+//     "SeFA K-Means Center - FFHQ, Layerwise": [
+//         { id: "s2_ffhq256-sefakmc-layerwise-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-sefakmc-layerwise-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-sefakmc-layerwise-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-sefakmc-layerwise-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-sefakmc-layerwise-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-sefakmc-layerwise-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-sefakmc-layerwise-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "SeFA K-Means Center - FFHQ, Global": [
+//         { id: "s2_ffhq256-sefakmc-global-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-sefakmc-global-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-sefakmc-global-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-sefakmc-global-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-sefakmc-global-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-sefakmc-global-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-sefakmc-global-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "SeFA K-Means Center - Wild, Layerwise": [
+//         { id: "s2_wild512-sefakmc-layerwise-early_0", name: "S2 Wild Early-0" },
+//         { id: "s2_wild512-sefakmc-layerwise-early_1", name: "S2 Wild Early-1" },
+//         { id: "s2_wild512-sefakmc-layerwise-middle_0", name: "S2 Wild Middle-0" },
+//         { id: "s2_wild512-sefakmc-layerwise-middle_1", name: "S2 Wild Middle-1" },
+//         { id: "s2_wild512-sefakmc-layerwise-middle_2", name: "S2 Wild Middle-2" },
+//         { id: "s2_wild512-sefakmc-layerwise-late_0", name: "S2 Wild Late-0" },
+//         { id: "s2_wild512-sefakmc-layerwise-late_1", name: "S2 Wild Late-1" }
+//     ],
+//     "SeFA K-Means Center - Wild, Global": [
+//         { id: "s2_wild512-sefakmc-global-early_0", name: "S2 Wild Early-0" },
+//         { id: "s2_wild512-sefakmc-global-early_1", name: "S2 Wild Early-1" },
+//         { id: "s2_wild512-sefakmc-global-middle_0", name: "S2 Wild Middle-0" },
+//         { id: "s2_wild512-sefakmc-global-middle_1", name: "S2 Wild Middle-1" },
+//         { id: "s2_wild512-sefakmc-global-middle_2", name: "S2 Wild Middle-2" },
+//         { id: "s2_wild512-sefakmc-global-late_0", name: "S2 Wild Late-0" },
+//         { id: "s2_wild512-sefakmc-global-late_1", name: "S2 Wild Late-1" }
+//     ],
+//     "GANSpace K-Means Center - FFHQ, Layerwise": [
+//         { id: "s2_ffhq256-ganspacekmc-layerwise-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-ganspacekmc-layerwise-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-ganspacekmc-layerwise-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-ganspacekmc-layerwise-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-ganspacekmc-layerwise-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-ganspacekmc-layerwise-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-ganspacekmc-layerwise-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "GANSpace K-Means Center - FFHQ, Global": [
+//         { id: "s2_ffhq256-ganspacekmc-global-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-ganspacekmc-global-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-ganspacekmc-global-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-ganspacekmc-global-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-ganspacekmc-global-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-ganspacekmc-global-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-ganspacekmc-global-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "GANSpace K-Means Center - Wild, Layerwise": [
+//         { id: "s2_wild512-ganspacekmc-layerwise-early_0", name: "S2 Wild Early-0" },
+//         { id: "s2_wild512-ganspacekmc-layerwise-early_1", name: "S2 Wild Early-1" },
+//         { id: "s2_wild512-ganspacekmc-layerwise-middle_0", name: "S2 Wild Middle-0" },
+//         { id: "s2_wild512-ganspacekmc-layerwise-middle_1", name: "S2 Wild Middle-1" },
+//         { id: "s2_wild512-ganspacekmc-layerwise-middle_2", name: "S2 Wild Middle-2" },
+//         { id: "s2_wild512-ganspacekmc-layerwise-late_0", name: "S2 Wild Late-0" },
+//         { id: "s2_wild512-ganspacekmc-layerwise-late_1", name: "S2 Wild Late-1" }
+//     ],
+//     "GANSpace K-Means Center - Wild, Global": [
+//         { id: "s2_wild512-ganspacekmc-global-early_0", name: "S2 Wild Early-0" },
+//         { id: "s2_wild512-ganspacekmc-global-early_1", name: "S2 Wild Early-1" },
+//         { id: "s2_wild512-ganspacekmc-global-middle_0", name: "S2 Wild Middle-0" },
+//         { id: "s2_wild512-ganspacekmc-global-middle_1", name: "S2 Wild Middle-1" },
+//         { id: "s2_wild512-ganspacekmc-global-middle_2", name: "S2 Wild Middle-2" },
+//         { id: "s2_wild512-ganspacekmc-global-late_0", name: "S2 Wild Late-0" },
+//         { id: "s2_wild512-ganspacekmc-global-late_1", name: "S2 Wild Late-1" }
+//     ],
+//     "SVMW - Landscape, Layerwise": [
+//         { id: "s3_landscape256-svmw-layerwise-early_0", name: "S3 Landscape Early-0" },
+//         { id: "s3_landscape256-svmw-layerwise-early_1", name: "S3 Landscape Early-1" },
+//         { id: "s3_landscape256-svmw-layerwise-middle_0", name: "S3 Landscape Middle-0" },
+//         { id: "s3_landscape256-svmw-layerwise-middle_1", name: "S3 Landscape Middle-1" },
+//         { id: "s3_landscape256-svmw-layerwise-middle_2", name: "S3 Landscape Middle-2" },
+//         { id: "s3_landscape256-svmw-layerwise-late_0", name: "S3 Landscape Late-0" },
+//         { id: "s3_landscape256-svmw-layerwise-late_1", name: "S3 Landscape Late-1" }
+//     ],
+//     "SVMW - FFHQ, Gender Only": [
+//         { id: "s2_ffhq256-svmw_gender-layerwise-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-svmw_gender-layerwise-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-svmw_gender-layerwise-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-svmw_gender-layerwise-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-svmw_gender-layerwise-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-svmw_gender-layerwise-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-svmw_gender-layerwise-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "SVMW - FFHQ, CelebA Attributes": [
+//         { id: "s2_ffhq256-svmw_ca-layerwise-early_0", name: "S2 FFHQ Early-0" },
+//         { id: "s2_ffhq256-svmw_ca-layerwise-early_1", name: "S2 FFHQ Early-1" },
+//         { id: "s2_ffhq256-svmw_ca-layerwise-middle_0", name: "S2 FFHQ Middle-0" },
+//         { id: "s2_ffhq256-svmw_ca-layerwise-middle_1", name: "S2 FFHQ Middle-1" },
+//         { id: "s2_ffhq256-svmw_ca-layerwise-middle_2", name: "S2 FFHQ Middle-2" },
+//         { id: "s2_ffhq256-svmw_ca-layerwise-late_0", name: "S2 FFHQ Late-0" },
+//         { id: "s2_ffhq256-svmw_ca-layerwise-late_1", name: "S2 FFHQ Late-1" }
+//     ],
+//     "Biased Dataset - FFHQ, Female": [
+//         { id: "s2_ffhq256-vac_female-layerwise-early_0", name: "FFHQ Early-0 GANSpace" },
+//         { id: "s2_ffhq256-vac_female-layerwise-early_1", name: "FFHQ Early-1 GANSpace" },
+//         { id: "s2_ffhq256-vac_female-layerwise-middle_0", name: "FFHQ Middle-0 GANSpace" },
+//         { id: "s2_ffhq256-vac_female-layerwise-middle_1", name: "FFHQ Middle-1 GANSpace" }
+//     ],
+//     "Biased Dataset - FFHQ, Male": [
+//         { id: "s2_ffhq256-vac_male-layerwise-early_0", name: "FFHQ Early-0 GANSpace" },
+//         { id: "s2_ffhq256-vac_male-layerwise-early_1", name: "FFHQ Early-1 GANSpace" },
+//         { id: "s2_ffhq256-vac_male-layerwise-middle_0", name: "FFHQ Middle-0 GANSpace" },
+//         { id: "s2_ffhq256-vac_male-layerwise-middle_1", name: "FFHQ Middle-1 GANSpace" }
+//     ],
+//     "1024 AE Layerwise": [
+//         { id: "s2_ffhq256-ae-layerwise-early_0", name: "FFHQ Early-0 AE" },
+//         { id: "s2_ffhq256-ae-layerwise-early_1", name: "FFHQ Early-1 AE" },
+//         { id: "s2_ffhq256-ae-layerwise-middle_0", name: "FFHQ Middle-0 AE" },
+//         { id: "s2_ffhq256-ae-layerwise-middle_1", name: "FFHQ Middle-1 AE" },
+//         { id: "s2_ffhq256-ae-layerwise-middle_2", name: "FFHQ Middle-2 AE" },
+//         { id: "s2_ffhq256-ae-layerwise-late_0", name: "FFHQ Late-0 AE" },
+//         { id: "s2_ffhq256-ae-layerwise-late_1", name: "FFHQ Late-1 AE" }
+//     ],
+//     "AE Global": [
+//         { id: "s2_ffhq256-ae-global-all", name: "AE Global" }
+//     ],
+//     "VAC Global": [
+//         { id: "s2_ffhq256-vac-global-all", name: "VAC Global" }
+//     ],
+//     "GANSpace Global": [
+//         { id: "s2_ffhq256-ganspacekmc-global-all", name: "Ganspace Global" }
+//     ],
+// };
 
 
 export default class AppUpper extends Component {
@@ -50,7 +250,7 @@ export default class AppUpper extends Component {
             icicleSize: 160,
             settingWidth: 0,
             toggledBarSize: 8,
-            originalImagePlotSize: 120,
+            originalImagePlotSize: 150,
             imageSize: 100,
             oriGap: 10,
             visDepth: 7,
