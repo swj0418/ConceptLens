@@ -409,11 +409,15 @@ export default class BiTree extends Component {
 
             // Determine how many images can fit into each box.
             let verticalCount = Math.floor(height / imageSize)  // Code budget
+
             if (topRow) {
                 verticalCount = Math.floor((height - 24) / imageSize)  // Code budget
             }
 
             let horizontalCount = Math.floor(width / imageSize) // Direction budget
+            if (leftCol) {
+                horizontalCount = Math.floor((width - 24) / imageSize)
+            }
 
             // Use width and height to determine padding.
             const horizontalPadding = (width - (imageSize * horizontalCount)) / 2
