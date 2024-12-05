@@ -190,38 +190,72 @@ export default class HorizontalIciclePlot extends Component {
         return arr;
     }
 
+    // nodeHighlighting(enabledSelection) {
+    //     d3.select(this.gref.current).selectAll('.iciclenode').select('rect')
+    //         .attr('stroke', 'black')
+    //         .style('filter', null)
+    //         .attr('stroke', d3.hcl(0, 0, 30))
+    //         .attr('stroke-width', 0.75)
+    //         .raise()
+    //         // .attr('stroke-width', d => {
+    //         //     return 0.75 + (d.weaveScore * 3)
+    //         // })
+    //
+    //     // Re-clustering (membership change)
+    //     d3.select(this.gref.current).selectAll('.iciclenode').filter(d => d.depth === this.props.visDepth)
+    //         .append('circle')
+    //         .attr('cx', d => d.size / 2)
+    //         .attr('cy', this.state.size[1] - 5.5)
+    //         // .attr('cy', this.state.size[1] - 23.5)
+    //         .attr('r', d => {
+    //             const r = ((d.weaveScore * 4) / this.props.weaveMax)
+    //             return isNaN(r) ? 0 : r
+    //         })
+    //         .style('fill', d3.hcl(360, 100, 70))
+    //
+    //     d3.select(this.gref.current).selectAll('.iciclenode').select('rect')
+    //         .filter(d => enabledSelection.includes(d.name))
+    //         .filter(d => d.depth === this.state.visDepth)
+    //         .style('filter', 'url(#shadow)')
+    //         // .attr('stroke', d3.hcl(120, 90, 40))
+    //         .attr('stroke', d3.hcl(50, 100, 75))
+    //         .attr('stroke-width', 4)
+    //         .raise()
+    //         // .attr('stroke', 'red')
+    // }
+
     nodeHighlighting(enabledSelection) {
-        d3.select(this.gref.current).selectAll('.iciclenode').select('rect')
-            .attr('stroke', 'black')
-            .style('filter', null)
+        const gref = d3.select(this.gref.current);
+
+        // Reset styles for all nodes
+        gref.selectAll('.iciclenode').select('rect')
             .attr('stroke', d3.hcl(0, 0, 30))
             .attr('stroke-width', 0.75)
-            // .attr('stroke-width', d => {
-            //     return 0.75 + (d.weaveScore * 3)
-            // })
+            .style('filter', null);
 
-        // Re-clustering (membership change)
-        d3.select(this.gref.current).selectAll('.iciclenode').filter(d => d.depth === this.props.visDepth)
+        // Highlight selected nodes
+        gref.selectAll('.iciclenode')
+            .filter(d => enabledSelection.includes(d.name) && d.depth === this.state.visDepth)
+            .each(function () {
+                d3.select(this).raise(); // Raise the entire group
+            })
+            .select('rect')
+            .style('filter', 'url(#shadow)')
+            .attr('stroke', d3.hcl(50, 100, 75))
+            .attr('stroke-width', 4);
+
+        // Add circles for re-clustering nodes
+        gref.selectAll('.iciclenode').filter(d => d.depth === this.props.visDepth)
             .append('circle')
             .attr('cx', d => d.size / 2)
             .attr('cy', this.state.size[1] - 5.5)
-            // .attr('cy', this.state.size[1] - 23.5)
             .attr('r', d => {
-                const r = ((d.weaveScore * 4) / this.props.weaveMax)
-                return isNaN(r) ? 0 : r
+                const r = ((d.weaveScore * 4) / this.props.weaveMax);
+                return isNaN(r) ? 0 : r;
             })
-            .style('fill', d3.hcl(360, 100, 70))
-
-        d3.select(this.gref.current).selectAll('.iciclenode').select('rect')
-            .filter(d => enabledSelection.includes(d.name))
-            .filter(d => d.depth === this.state.visDepth)
-            .style('filter', 'url(#shadow)')
-            // .attr('stroke', d3.hcl(120, 90, 40))
-            .attr('stroke', d3.hcl(50, 100, 75))
-            .attr('stroke-width', 3)
-            .raise()
-            // .attr('stroke', 'red')
+            .style('fill', d3.hcl(360, 100, 70));
     }
+
 
     getUpdatedSelectionDirections(selection) {
         let prevSelectionDirection = this.props.getSelectionDirection()

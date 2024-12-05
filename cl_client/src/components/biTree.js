@@ -181,101 +181,117 @@ export default class BiTree extends Component {
             } catch (e) {
             }
 
-        // Define scales for height and width
-        const heightScale = d3.scaleLinear()
-            .domain([this.state.magmin, this.state.magmax || 1]) // Avoid NaN issues with empty data
-            .range([0, 20]);
+            // Define scales for height and width
+            const heightScale = d3.scaleLinear()
+                .domain([this.state.magmin, this.state.magmax || 1]) // Avoid NaN issues with empty data
+                .range([0, 20]);
 
-        const widthScale = d3.scaleBand()
-            .domain(d3.range(data.length)) // Correctly set the domain for band scale
-            .range([0, width])
-            .padding(0.1); // Add padding for better visuals
+            const widthScale = d3.scaleBand()
+                .domain(d3.range(data.length)) // Correctly set the domain for band scale
+                .range([0, width])
+                .padding(0.1); // Add padding for better visuals
 
-        // Add a container rect
-        selection
-            .append('rect')
-            .attr('width', width)
-            .attr('height', 20)
-            .attr('fill', d3.hcl(200, 1, 95))
-            .attr('stroke', 'black')
-            .attr('stroke-width', 0.1)
+            // Add a container rect
+            selection
+                .append('rect')
+                .attr('width', width)
+                .attr('height', 20)
+                .attr('fill', d3.hcl(200, 1, 95))
+            // .attr('stroke', 'black')
+            // .attr('stroke-width', 0.1)
 
-        // Append a `g` element to hold the bars
-        const barsGroup = selection.append('g');
+            // Append a `g` element to hold the bars
+            const barsGroup = selection.append('g');
 
-        // Bind data to bars
-        barsGroup.selectAll('rect')
-            .data(data)
-            .join('rect') // Use join pattern for enter/update/exit handling
-            .attr('x', (d, i) => widthScale(i)) // Calculate x position using widthScale
-            .attr('y', d => 20 - heightScale(d)) // Align bars to the bottom
-            .attr('width', widthScale.bandwidth()) // Set bar width
-            .attr('height', d => heightScale(d)) // Set bar height
-            .attr('fill', d3.hcl(200, 1, 40))
-            .raise();
+            // Bind data to bars
+            barsGroup.selectAll('rect')
+                .data(data)
+                .join('rect') // Use join pattern for enter/update/exit handling
+                .attr('x', (d, i) => widthScale(i)) // Calculate x position using widthScale
+                .attr('y', d => 20 - heightScale(d)) // Align bars to the bottom
+                .attr('width', widthScale.bandwidth()) // Set bar width
+                .attr('height', d => heightScale(d)) // Set bar height
+                .attr('fill', d3.hcl(200, 1, 40))
+                .raise();
 
-        // Append ticks (lines and labels)
-        const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
-        const tickScale = d3.scaleLinear()
-            .domain([this.state.magmin, this.state.magmax])
-            .range([20, 0]); // Align with the bar chart's height
+            // Append ticks (lines and labels)
+            const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
+            const tickScale = d3.scaleLinear()
+                .domain([this.state.magmin, this.state.magmax])
+                .range([20, 0]); // Align with the bar chart's height
 
-        const tickGroup = selection.append('g');
+            const tickGroup = selection.append('g');
 
-        if (1 === 1) {
-            // Add tick lines
-            tickGroup.selectAll('line')
-                .data(tickValues)
-                .join('line')
-                .attr('x1', 0)
-                .attr('x2', width)
-                .attr('y1', d => tickScale(d))
-                .attr('y2', d => tickScale(d))
-                .attr('stroke', 'black')
-                .attr('stroke-width', 0.5)
-                .attr('stroke-dasharray', '2,2'); // Optional dashed lines for ticks
+            if (1 === 1) {
+                // Add tick lines
+                tickGroup.selectAll('line')
+                    .data(tickValues)
+                    .join('line')
+                    .attr('x1', 0)
+                    .attr('x2', width)
+                    .attr('y1', d => tickScale(d))
+                    .attr('y2', d => tickScale(d))
+                    .attr('stroke', d3.hcl(200, 1, 60))
+                    .attr('stroke-width', 0.5)
+                    .attr('stroke-dasharray', '10,10') // Optional dashed lines for ticks
+                    .lower()
+            }
+
+            if (leftCol && firstOne) {
+                // Add tick lines
+                tickGroup.selectAll('line')
+                    .data(tickValues)
+                    .join('line')
+                    .attr('x1', (d, i) => {
+                        return -7 * i
+                    })
+                    .attr('x2', width)
+                    .attr('y1', (d, i) => {
+                        return tickScale(d)
+                    })
+                    .attr('y2', d => tickScale(d))
+                    .attr('stroke', d3.hcl(200, 1, 60))
+                    .attr('stroke-width', 0.5)
+                    .attr('stroke-dasharray', '10,10') // Optional dashed lines for ticks
+                    .lower()
+
+                // Add tick labels
+                tickGroup.selectAll('text')
+                    .data(tickValues)
+                    .join('text')
+                    // .attr('x', -5) // Position labels to the left of the bars
+                    .attr('x', (d, i) => {
+                        return -8 * i
+                    }) // Position labels to the left of the bars
+                    .attr('y', (d, i) => {
+                        return tickScale(d)
+                    })
+                    .attr('dy', '0.15em') // Vertically center the text
+                    // .attr('dy', '0.35em') // Vertically center the text
+                    .attr('text-anchor', 'end') // Align text to the right
+                    .text(d => {
+                        try {
+                            return d.toFixed(1)
+                        } catch (e) {
+                            return d
+                        }
+                    }) // Format tick labels
+                    // .text(d => d) // Format tick labels
+                    .attr('font-size', 6)
+                    .attr('fill', d3.hcl(200, 1, 40));
+            }
+
         }
 
-        if (leftCol && firstOne) {
-            // Add tick lines
-            tickGroup.selectAll('line')
-                .data(tickValues)
-                .join('line')
-                .attr('x1', 0)
-                .attr('x2', width)
-                .attr('y1', d => tickScale(d))
-                .attr('y2', d => tickScale(d))
-                .attr('stroke', 'black')
-                .attr('stroke-width', 0.5)
-                .attr('stroke-dasharray', '2,2'); // Optional dashed lines for ticks
-
-            // Add tick labels
-            tickGroup.selectAll('text')
-                .data(tickValues)
-                .join('text')
-                .attr('x', -5) // Position labels to the left of the bars
-                .attr('y', d => tickScale(d))
-                .attr('dy', '0em') // Vertically center the text
-                // .attr('dy', '0.35em') // Vertically center the text
-                .attr('text-anchor', 'end') // Align text to the right
-                .text(d => d.toFixed(1)) // Format tick labels
-                // .text(d => d) // Format tick labels
-                .attr('font-size', 8)
-                .attr('fill', 'black');
-        }
-
-        }
-
-        let insertDirectionGlyph = (selection, cIdx, width) => {
+        let insertDirectionGlyph = (selection, cIdx, width, leftCol, firstOne) => {
             let data = []
             try {
                 data = this.state.codeGroupedMagnitude[cIdx][1].map(d => d.mag_contribution)
             } catch (e) {
             }
+
             // Define scales for height and width
             const widthScale = d3.scaleLinear()
-                // .domain([d3.min(data) || 0, d3.max(data) || 1]) // Avoid NaN issues with empty data
-                // .domain([0, d3.max(data) || 1]) // Avoid NaN issues with empty data
                 .domain([this.state.magmin, this.state.magmax || 1]) // Avoid NaN issues with empty data
                 .range([0, 20]);
 
@@ -290,8 +306,8 @@ export default class BiTree extends Component {
                 .attr('width', 20)
                 .attr('height', width)
                 .attr('fill', d3.hcl(200, 1, 95))
-                .attr('stroke', 'black')
-                .attr('stroke-width', 0.1)
+                // .attr('stroke', 'black')
+                // .attr('stroke-width', 0.1)
 
             // Append a `g` element to hold the bars
             const barsGroup = selection.append('g');
@@ -300,13 +316,54 @@ export default class BiTree extends Component {
             barsGroup.selectAll('rect')
                 .data(data)
                 .join('rect') // Use join pattern for enter/update/exit handling
-                .attr('x', (d, i) => 20 - widthScale(d)) //
+                .attr('x', d => 20 - widthScale(d)) // Align bars horizontally
                 .attr('y', (d, i) => placementScale(i)) // Calculate y position using placementScale
-                .attr('width', d => widthScale(d)) // Calculate y position using widthScale
+                .attr('width', d => widthScale(d)) // Set bar width
                 .attr('height', placementScale.bandwidth()) // Set bar height
                 .attr('fill', d3.hcl(200, 1, 40))
-                .raise()
+                .raise();
+
+            // Append ticks (lines and labels)
+            const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
+            const tickScale = d3.scaleLinear()
+                .domain([this.state.magmin, this.state.magmax])
+                .range([20, 0]); // Align with the bar chart's width
+
+            const tickGroup = selection.append('g');
+
+            if (1 === 1) {
+                // Add vertical tick lines
+                tickGroup.selectAll('line')
+                    .data(tickValues)
+                    .join('line')
+                    .attr('x1', d => tickScale(d)) // Tick position
+                    .attr('x2', d => tickScale(d)) // Vertical line
+                    .attr('y1', 0)
+                    .attr('y2', width)
+                    .attr('stroke', d3.hcl(200, 1, 60))
+                    .attr('stroke-width', 0.5)
+                    .attr('stroke-dasharray', '10,10') // Optional dashed lines for ticks
+                    .lower()
+            }
+
+            if (leftCol && firstOne) {
+                // Add vertical tick lines
+                tickGroup.selectAll('line')
+                    .data(tickValues)
+                    .join('line')
+                    .attr('x1', d => tickScale(d)) // Tick position
+                    .attr('x2', d => tickScale(d)) // Vertical line
+                    .attr('y1', (d, i) => {
+                        return -8 * i
+                    })
+                    .attr('y2', width)
+                    .attr('stroke', d3.hcl(200, 1, 60))
+                    .attr('stroke-width', 0.5)
+                    .attr('stroke-dasharray', '10,10') // Optional dashed lines for ticks
+                    .lower()
+            }
         }
+
 
         // Number of topGs
         let topGcount = selection.size()
@@ -446,8 +503,8 @@ export default class BiTree extends Component {
                     selection
                         .append('g')
                         .attr('transform', `translate(${xPos - 22}, ${yPos})`)
-                        .call(insertDirectionGlyph, v, horizontalScale.bandwidth())
-                        // .call(insertDirectionGlyphSparkline, v, verticalScale.bandwidth())
+                        .call(insertDirectionGlyph, v, horizontalScale.bandwidth(), topRow, v === 0)
+                    // .call(insertDirectionGlyphSparkline, v, verticalScale.bandwidth())
                     glyphCodeDrawn++
                 }
 
