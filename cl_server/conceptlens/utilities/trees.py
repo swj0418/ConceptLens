@@ -2,6 +2,7 @@ import math
 import time
 
 import torch
+import numpy as np
 
 
 def _compute_subset_magnitude(magnitude_features):
@@ -418,6 +419,9 @@ def compute_coherence_code(tree,
         var = _compute_subset_variance(var_subset)
         all_magnitude.append(magnitude)
         all_variance.append(var)
+
+        if np.isnan(magnitude):
+            magnitude = 0
 
         # Collect each node's magnitude and variance.
         if collect_only_leaf:

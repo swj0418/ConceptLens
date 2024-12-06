@@ -235,7 +235,8 @@ export default class HorizontalIciclePlot extends Component {
 
         // Highlight selected nodes
         gref.selectAll('.iciclenode')
-            .filter(d => enabledSelection.includes(d.name) && d.depth === this.state.visDepth)
+            .filter(d => enabledSelection.includes(d.name))
+            // .filter(d => enabledSelection.includes(d.name) && d.depth === this.state.visDepth)
             .each(function () {
                 d3.select(this).raise(); // Raise the entire group
             })
@@ -245,7 +246,8 @@ export default class HorizontalIciclePlot extends Component {
             .attr('stroke-width', 4);
 
         // Add circles for re-clustering nodes
-        gref.selectAll('.iciclenode').filter(d => d.depth === this.props.visDepth)
+        gref.selectAll('.iciclenode')
+            // .filter(d => d.depth === this.props.visDepth)
             .append('circle')
             .attr('cx', d => d.size / 2)
             .attr('cy', this.state.size[1] - 5.5)

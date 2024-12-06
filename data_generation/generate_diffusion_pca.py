@@ -1,6 +1,7 @@
 from diffusion_utils.semanticdiffusion import load_model, Q
 from diffusion_utils.direction_plotter import DirectionPlotter
 from diffusion_utils.dutils import tensor_to_pil
+from diffusion_utils.pca import PCAMethod
 import torch
 import os
 import pickle
@@ -8,11 +9,10 @@ from sklearn.cluster import AgglomerativeClustering
 from PIL import Image
 
 
-def process_images(folder_path, model_id, h_space, num_inference_steps, num_sampling_runs=64, walked_distance=10, inversion=False,
-                   interfere_start=0, interfere_end=80):
+def process_images(folder_path, model_id, h_space, num_inference_steps, num_sampling_runs=64, walked_distance=10, inversion=False):
     torch.manual_seed(42)
 
-    style_file = f'styles/{model_id}-{num_inference_steps}_styles_500.pkl'  # Path to the style content file
+    style_file = f'styles/{model_id}-{h_space}-{num_inference_steps}_styles_200.pkl'  # Path to the style content file
 
     # Load the model
     sd = load_model(
@@ -21,9 +21,6 @@ def process_images(folder_path, model_id, h_space, num_inference_steps, num_samp
         h_space=h_space,
         num_inference_steps=num_inference_steps
     )
-
-    # Initialize DirectionPlotter
-    dp = DirectionPlotter(sd)
 
     # Collect all images from the specified folder
     image_files = [f for f in os.listdir(os.path.join(folder_path, 'codes')) if f.endswith('.jpg')]
@@ -38,43 +35,21 @@ def process_images(folder_path, model_id, h_space, num_inference_steps, num_samp
     # Load latent codes ("hs") from the style file
     with open(style_file, "rb") as f:
         saved_latent_codes = pickle.load(f)
-
-    for i, item in enumerate(saved_latent_codes):
-        print(i)
-
     codes = []
-    for i, item in enumerate(saved_latent_codes):
+    for item in saved_latent_codes:
         codes.append(item['hs'])
-        # print(len(codes))
-        saved_latent_codes[i] = 0
     codes = torch.stack(codes)
 
-    # Cluster latent codes using Hierarchical Clustering
-    shape = codes.shape  # [n_codes, latent_dim, timesteps, spatial, spatial] => [200, 896, 80, 8, 8]
-    clustering = AgglomerativeClustering(n_clusters=32).fit(codes.flatten(start_dim=1).cpu().numpy())
-    labels = clustering.labels_
-
-    # Compute centroids for each cluster
-    centroids = []
-    for cluster_idx in range(32):
-        cluster_points = codes[labels == cluster_idx]
-        centroid = torch.mean(cluster_points, dim=0)
-        centroids.append(centroid)
-    centroids = torch.stack(centroids).to(codes.device)
-
     # Generate directions on-the-fly
+    pca = PCAMethod(sd)
+    dp = DirectionPlotter(sd)
     all_directions = []
     for run_idx in range(num_sampling_runs):
-        print(f"Sampling run: {run_idx}")
-        ws_a, ws_b = torch.randint(0, centroids.shape[0], (2,))
-        while ws_a == ws_b:
-            ws_b = torch.randint(0, centroids.shape[0], (1,))
-
-        # Compute direction between centroid pairs
-        direction = centroids[ws_a] - centroids[ws_b]
-        direction = direction / torch.norm(direction, dim=-1, keepdim=True)
-        direction = direction.reshape(shape[1:])
-        all_directions.append(direction)
+        hhs = codes[run_idx*25:(run_idx+1)*25]
+        PCs, ss, Uts = pca.get_PCs_indv(hhs, num_svectors=10)
+        for i in range(8):
+            n = dp.get_direction(Uts, ss, svec_idx=i)
+            all_directions.append(n.delta_hs)
 
     latent_codes = []
     # Collect latent codes from all images
@@ -105,8 +80,8 @@ def process_images(folder_path, model_id, h_space, num_inference_steps, num_samp
     # Apply edits using the computed directions
     for idx, (image_file, q) in enumerate(zip(image_files, latent_codes)):
         for direction_idx, direction in enumerate(all_directions): # [:30] looked good
-            direction[:interfere_start] = 0
-            direction[interfere_end:] = 0
+            # direction[80:90] *= 3
+            # direction[60:] = 0
             q_edit = sd.apply_direction_raw(q.copy(), direction, scale=walked_distance)
 
             # Convert tensor to PIL image and save the edited image
@@ -120,24 +95,4 @@ if __name__ == '__main__':
     input_folder = 'ldm_celeba256-vac-global-all'  # Replace with the path to your folder containing images
 
     process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False)
-
-    input_folder = 'ldm_celeba256-vac-global-middle_0'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=20, interfere_end=35)
-
-    input_folder = 'ldm_celeba256-vac-global-middle_1'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=35, interfere_end=50)
-
-    input_folder = 'ldm_celeba256-vac-global-late_0'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=50, interfere_end=65)
-
-    input_folder = 'ldm_celeba256-vac-global-late_1'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=65, interfere_end=80)
+                   walked_distance=10, num_sampling_runs=8, inversion=False)

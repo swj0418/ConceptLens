@@ -109,7 +109,8 @@ export default class BiTree extends Component {
 
         // Rectangles
         g.append('rect').call(this.setup_rects)
-        let selection = g.append("g").filter(d =>
+        let selection = g.append("g")
+            .filter(d =>
             d[0].depth === this.state.visDepth &&
             d[1].depth === this.state.visDepth) // Nested Images
 
@@ -174,10 +175,15 @@ export default class BiTree extends Component {
                 .attr('opacity', 1) // Final opacity
         }
 
-        let insertCodeGlyph = (selection, dIdx, width, leftCol, firstOne) => {
+        let insertCodeGlyph = (selection, dIdx, codeSample, width, leftCol, firstOne) => {
             let data = []
+            // console.log(codeSample, dIdx, this.state.directionGroupedMagnitude)
+            console.log(codeSample, dIdx, this.state.directionGroupedMagnitude)
             try {
-                data = this.state.directionGroupedMagnitude[dIdx][1].map(d => d.mag_contribution)
+                // data = this.state.directionGroupedMagnitude[dIdx][1].map(d => d.mag_contribution)
+                data = this.state.directionGroupedMagnitude[dIdx][1]
+                    .filter(v => codeSample.has(v.code))
+                    .map(d => d.mag_contribution)
             } catch (e) {
             }
 
@@ -283,10 +289,12 @@ export default class BiTree extends Component {
 
         }
 
-        let insertDirectionGlyph = (selection, cIdx, width, leftCol, firstOne) => {
+        let insertDirectionGlyph = (selection, cIdx, directionSample, width, leftCol, firstOne) => {
             let data = []
             try {
-                data = this.state.codeGroupedMagnitude[cIdx][1].map(d => d.mag_contribution)
+                data = this.state.codeGroupedMagnitude[cIdx][1]
+                    .filter(v => directionSample.has(v.direction))
+                    .map(d => d.mag_contribution)
             } catch (e) {
             }
 
@@ -369,6 +377,10 @@ export default class BiTree extends Component {
         let topGcount = selection.size()
         let methodDrawnCount = -1
 
+        // For glyphs
+        let codeToGlyph = []
+        let directionToGlyph = []
+
         // scales for individual boxes
         selection.each(function (d, i) {
             let topRow = false
@@ -384,7 +396,6 @@ export default class BiTree extends Component {
                     leftCol = true
                 }
             }
-
 
             const width = d[0].size, height = d[1].size
             const selection = d3.select(this)
@@ -429,6 +440,9 @@ export default class BiTree extends Component {
             // Draw Image
             let directionSample = evenlySampleArray(directionLeaves, horizontalCount)
             let codeSample = evenlySampleArray(codeLeaves, verticalCount)
+
+            // For glyph
+
             for (var h = 0; h < horizontalCount; h++) {
                 methodDrawnCount += 1
                 for (var v = 0; v < verticalCount; v++) {
@@ -440,6 +454,8 @@ export default class BiTree extends Component {
                         let yPosImg = yPos
                         if (leftCol) xPos += 20
                         if (topRow) yPos += 20
+                        codeToGlyph.push(codeSample[v].name)
+                        directionToGlyph.push(directionSample[h].name)
 
                         selection
                             .append('image')
@@ -476,6 +492,65 @@ export default class BiTree extends Component {
                     }
                 }
             }
+        })
+        codeToGlyph = new Set(codeToGlyph)
+        directionToGlyph = new Set(directionToGlyph)
+
+        let insertCodeGlyphCount = 0
+        selection.each(function (d, i) {
+            let topRow = false
+            let leftCol = false
+            for (let k in topRowRects) {
+                if (d === topRowRects[k].rect) {
+                    topRow = true
+                }
+            }
+
+            for (let k in leftColRects) {
+                if (d === leftColRects[k].rect) {
+                    leftCol = true
+                }
+            }
+
+            const width = d[0].size, height = d[1].size
+            const selection = d3.select(this)
+            let nodeData = selection.data()[0]
+
+            let imageSize = 120
+
+            // Determine how many images can fit into each box.
+            let verticalCount = Math.floor(height / imageSize)  // Code budget
+
+            if (topRow) {
+                verticalCount = Math.floor((height - 24) / imageSize)  // Code budget
+            }
+
+            let horizontalCount = Math.floor(width / imageSize) // Direction budget
+            if (leftCol) {
+                horizontalCount = Math.floor((width - 24) / imageSize)
+            }
+
+            // Use width and height to determine padding.
+            const horizontalPadding = (width - (imageSize * horizontalCount)) / 2
+            const verticalPadding = (height - (imageSize * verticalCount)) / 2
+
+            // Setup scales
+            const horizontalScale = d3.scaleBand().domain(Array.from({length: horizontalCount}, (_, i) => i))
+                .range([horizontalPadding, width - horizontalPadding]).paddingOuter(0.1).paddingInner(0.1)
+
+            const verticalScale = d3.scaleBand().domain(Array.from({length: verticalCount}, (_, i) => i))
+                .range([verticalPadding, height - verticalPadding]).paddingOuter(0.1).paddingInner(0.1)
+
+            let directionLeaves = accumulateLeafNodesBudget(nodeData[0])
+            let codeLeaves = accumulateLeafNodesBudget(nodeData[1])
+
+            // If the budget is larger than available resources, reduce the budget
+            if (directionLeaves.length < horizontalCount) {
+                horizontalCount = directionLeaves.length
+            }
+            if (codeLeaves.length < verticalCount) {
+                verticalCount = codeLeaves.length
+            }
 
             if (topRow) {
                 for (var h = 0; h < horizontalCount; h++) {
@@ -487,8 +562,9 @@ export default class BiTree extends Component {
                     selection
                         .append('g')
                         .attr('transform', `translate(${xPos}, ${yPos - 22})`)
-                        .call(insertCodeGlyph, h, horizontalScale.bandwidth(), leftCol, h === 0)
+                        .call(insertCodeGlyph, glyphDirectionDrawn, codeToGlyph, horizontalScale.bandwidth(), leftCol, h === 0)
                     glyphDirectionDrawn++
+
                 }
 
             }
@@ -503,12 +579,11 @@ export default class BiTree extends Component {
                     selection
                         .append('g')
                         .attr('transform', `translate(${xPos - 22}, ${yPos})`)
-                        .call(insertDirectionGlyph, v, horizontalScale.bandwidth(), topRow, v === 0)
-                    // .call(insertDirectionGlyphSparkline, v, verticalScale.bandwidth())
+                        .call(insertDirectionGlyph, glyphCodeDrawn, directionToGlyph, horizontalScale.bandwidth(), topRow, v === 0)
                     glyphCodeDrawn++
                 }
-
             }
+
         })
 
     }

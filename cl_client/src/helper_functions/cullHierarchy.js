@@ -38,7 +38,7 @@ export function cullHierarchyByNameAndQuantity(node, target_names, subsets) {
             for (var t in target_names) {
                 for (var c in childrenNames) {
                     if (target_names[t] === childrenNames[c]) {
-                        console.log(node.leaves[c])
+                        // console.log(node.leaves[c])
                         retained_leaves.push(node.leaves[c])
                     }
 

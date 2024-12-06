@@ -4,10 +4,10 @@ import torch
 from functools import partial 
 from tqdm import tqdm 
 from dataclasses import dataclass
-from utils import image_grid
+from diffusion_utils.dutils import image_grid
 
-from criteria.lpips.lpips import LPIPS
-from semanticdiffusion import Q
+# from .criteria.lpips.lpips import LPIPS
+from diffusion_utils.semanticdiffusion import Q
 
 
 from matplotlib import pyplot as plt

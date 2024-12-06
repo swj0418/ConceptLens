@@ -913,6 +913,7 @@ export default class App extends Component {
         }).then(response => response.json())
             .then(data => JSON.parse(data))
             .then(data => {
+                console.log(data)
                 console.log("Code tree: ", data.codeTree)
                 let codeTree = data.codeTree
                 let magnitude = data.magnitude

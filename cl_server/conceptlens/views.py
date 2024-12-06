@@ -19,7 +19,7 @@ from .utilities.features import compute_euclidean_distance
 SERVED_DATA_ROOT = 'served_data'
 torch.set_printoptions(precision=3, sci_mode=False)
 encoder.FLOAT_REPR = lambda o: format(o, '.2f')
-node_size_minimum_control = 3
+node_size_minimum_control = 2
 node_size_divisor_global = 40
 node_variance_threshold = 1.0  # Go over this variance then do not merge.
 
@@ -291,6 +291,10 @@ def direction_hierarchy_selection(request):
     code_indices = sorted(data['code_indices'])  # For computing sub-selection mag and var.
     print(f"Direction selection made: {direction_indices[:10]}...")
 
+
+    if len(direction_indices) == 0:
+        direction_indices = [_ for _ in range(1024)]
+
     # Read features
     if not use_latent:
         walk_features, cumulative_dfm_size = readers.read_walk_features(experiment_names, served_data_root=SERVED_DATA_ROOT)
@@ -354,6 +358,9 @@ def direction_hierarchy_selection(request):
             'mag_contribution': v['mag_contribution'],
             'var_contribution': v['mag_contribution']
         })
+
+    if np.isnan(mag):
+        mag = 0
 
     resp = json.dumps({
         'codeTree': code_tree,
@@ -481,6 +488,9 @@ def code_hierarchy_selection(request):
     code_indices = sorted(data['code_indices'])
     direction_indices = sorted(data['direction_indices'])
     # print(f"Code selection made: {code_indices[:10]}...")
+
+    if len(code_indices) == 0:
+        code_indices = [_ for _ in range(1024)]
 
     # Read features
     if not use_latent:
