@@ -380,6 +380,8 @@ export default class BiTree extends Component {
         // For glyphs
         let codeToGlyph = []
         let directionToGlyph = []
+        let codeGlyphToBeDrawn = false
+        let directionGlyphToBeDrawn = false
 
         // scales for individual boxes
         selection.each(function (d, i) {
@@ -442,6 +444,8 @@ export default class BiTree extends Component {
             let codeSample = evenlySampleArray(codeLeaves, verticalCount)
 
             // For glyph
+            if (verticalCount === 0) codeGlyphToBeDrawn = true
+            if (horizontalCount === 0) directionGlyphToBeDrawn = true
 
             for (var h = 0; h < horizontalCount; h++) {
                 methodDrawnCount += 1
@@ -496,15 +500,15 @@ export default class BiTree extends Component {
         codeToGlyph = new Set(codeToGlyph)
         directionToGlyph = new Set(directionToGlyph)
 
-        let insertCodeGlyphCount = 0
         selection.each(function (d, i) {
             let topRow = false
             let leftCol = false
+
             for (let k in topRowRects) {
-                if (d === topRowRects[k].rect) {
-                    topRow = true
+                    if (d === topRowRects[k].rect) {
+                        topRow = true
+                    }
                 }
-            }
 
             for (let k in leftColRects) {
                 if (d === leftColRects[k].rect) {
@@ -564,9 +568,7 @@ export default class BiTree extends Component {
                         .attr('transform', `translate(${xPos}, ${yPos - 22})`)
                         .call(insertCodeGlyph, glyphDirectionDrawn, codeToGlyph, horizontalScale.bandwidth(), leftCol, h === 0)
                     glyphDirectionDrawn++
-
                 }
-
             }
 
             if (leftCol) {

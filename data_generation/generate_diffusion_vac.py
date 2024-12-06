@@ -117,10 +117,10 @@ def process_images(folder_path, model_id, h_space, num_inference_steps, num_samp
 
 
 if __name__ == '__main__':
-    input_folder = 'ldm_celeba256-vac-global-all'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False)
+    # input_folder = 'ldm_celeba256-vac-global-all'  # Replace with the path to your folder containing images
+    #
+    # process_images(input_folder, 'ldm', 'after', 80,
+    #                walked_distance=25, num_sampling_runs=64, inversion=False)
 
     input_folder = 'ldm_celeba256-vac-global-middle_0'  # Replace with the path to your folder containing images
 
