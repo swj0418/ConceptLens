@@ -15,6 +15,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .utilities.features import compute_euclidean_distance
 
+# For debugging purposes
+torch.set_warn_always(False)
+
 # GLOBAL
 SERVED_DATA_ROOT = 'served_data'
 torch.set_printoptions(precision=3, sci_mode=False)
@@ -287,11 +290,13 @@ def direction_hierarchy_selection(request):
     data = json.loads(request.body)
     experiment_names = data['experiment_names']
     code_tree = data['code_tree']
-    direction_indices = sorted(data['direction_indices'])
     code_indices = sorted(data['code_indices'])  # For computing sub-selection mag and var.
+    direction_indices = sorted(data['direction_indices'])
+    print("============= Direction Hierarchy Selection Event =============")
+    print(f"Code selection made: {code_indices[:10]}...")
     print(f"Direction selection made: {direction_indices[:10]}...")
 
-
+    # For de-selection error handling. This is not a permanent solution.
     if len(direction_indices) == 0:
         direction_indices = [_ for _ in range(1024)]
 
@@ -487,7 +492,9 @@ def code_hierarchy_selection(request):
     direction_tree = data['direction_tree']
     code_indices = sorted(data['code_indices'])
     direction_indices = sorted(data['direction_indices'])
-    # print(f"Code selection made: {code_indices[:10]}...")
+    print("============= Code Hierarchy Selection Event =============")
+    print(f"Code selection made: {code_indices[:10]}...")
+    print(f"Direction selection made: {direction_indices[:10]}...")
 
     if len(code_indices) == 0:
         code_indices = [_ for _ in range(1024)]
@@ -526,19 +533,15 @@ def code_hierarchy_selection(request):
                                                           normalize=var_normalize)
 
     # Coherence computation
-    node_magnitudes, node_variances = trees.compute_direction_coherence(direction_tree,
-                                                                        mag_features,
-                                                                        var_features,
-                                                                        collect_only_leaf=False)
+    trees.compute_direction_coherence(direction_tree, mag_features, var_features, collect_only_leaf=False,
+                                      code_indices=code_indices, direction_indices=direction_indices)
 
     # Compute mag and var for the selected code and directions
-    print(mag_features.shape, var_features.shape)
     subset_mag, subset_var = mag_features, var_features
-    # if len(code_indices) == 0:
-    #     subset_mag, subset_var = mag_features, var_features
-    # else:
-    #     subset_mag, subset_var = mag_features[code_indices,:], var_features[code_indices,:]
-
+    if len(direction_indices) == 0:
+        subset_mag, subset_var = mag_features, var_features
+    else:
+        subset_mag, subset_var = mag_features[:, direction_indices], var_features[:, direction_indices]
 
     magnitude_norms = torch.norm(subset_mag, dim=-1).flatten(0, 1)
 
@@ -548,7 +551,6 @@ def code_hierarchy_selection(request):
     # To compute the range of magnitudes
     all_mag_norms = torch.norm(all_mag_features, dim=-1)
     min_mag, max_mag = torch.min(all_mag_norms), torch.max(all_mag_norms)
-
     contributions = compute_self_magnitude(direction_indices, code_indices, magnitude_norms)
 
     # Amend "leaves" fields plus more

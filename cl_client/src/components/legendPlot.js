@@ -287,6 +287,7 @@ function arcmapLegend(
 
         const vAxisScale = d3.scaleLinear().range([0, size]).domain(valueDomain);
         const valueFormat = fmat ? d3.format(fmat) : vAxisScale.tickFormat(vTicks.length - 1);
+        // const valueFormat = fmat ? d3.format(fmat) : vAxisScale.tickFormat(vTicks.length - 2);
 
         const angle = d3.scaleLinear().domain(valueDomain).range([-30, 30]);
 

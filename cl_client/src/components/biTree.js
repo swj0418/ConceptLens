@@ -203,30 +203,20 @@ export default class BiTree extends Component {
                 .attr('width', width)
                 .attr('height', 20)
                 .attr('fill', d3.hcl(200, 1, 95))
-            // .attr('stroke', 'black')
-            // .attr('stroke-width', 0.1)
+
+            let glyphG = selection.append('g')
 
             // Append a `g` element to hold the bars
-            const barsGroup = selection.append('g');
-
-            // Bind data to bars
-            barsGroup.selectAll('rect')
-                .data(data)
-                .join('rect') // Use join pattern for enter/update/exit handling
-                .attr('x', (d, i) => widthScale(i)) // Calculate x position using widthScale
-                .attr('y', d => 20 - heightScale(d)) // Align bars to the bottom
-                .attr('width', widthScale.bandwidth()) // Set bar width
-                .attr('height', d => heightScale(d)) // Set bar height
-                .attr('fill', d3.hcl(200, 1, 40))
-                .raise();
+            const barsGroup = glyphG.append('g');
+            const tickGroup = glyphG.append('g');
+            tickGroup.lower()
 
             // Append ticks (lines and labels)
-            const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
+            // const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
+            const tickValues = [(this.state.magmin + this.state.magmax) / 3, (this.state.magmin + this.state.magmax) * 2 / 3]; // 2 ticks
             const tickScale = d3.scaleLinear()
                 .domain([this.state.magmin, this.state.magmax])
                 .range([20, 0]); // Align with the bar chart's height
-
-            const tickGroup = selection.append('g');
 
             if (1 === 1) {
                 // Add tick lines
@@ -247,7 +237,7 @@ export default class BiTree extends Component {
                 // Add tick lines
                 tickGroup.selectAll('line')
                     .data(tickValues)
-                    .join('line')
+                    .append('line')
                     .attr('x1', (d, i) => {
                         return -7 * i
                     })
@@ -267,12 +257,12 @@ export default class BiTree extends Component {
                     .join('text')
                     // .attr('x', -5) // Position labels to the left of the bars
                     .attr('x', (d, i) => {
-                        return -8 * i
+                        return -10 * i
                     }) // Position labels to the left of the bars
                     .attr('y', (d, i) => {
                         return tickScale(d)
                     })
-                    .attr('dy', '0.15em') // Vertically center the text
+                    .attr('dy', '0.25em') // Vertically center the text
                     // .attr('dy', '0.35em') // Vertically center the text
                     .attr('text-anchor', 'end') // Align text to the right
                     .text(d => {
@@ -283,10 +273,29 @@ export default class BiTree extends Component {
                         }
                     }) // Format tick labels
                     // .text(d => d) // Format tick labels
-                    .attr('font-size', 6)
+                    .attr('font-size', 8)
                     .attr('fill', d3.hcl(200, 1, 40));
-            }
 
+                tickGroup
+                    .append('text')
+                    .text("Code magnitudes")
+                    .attr('x', 40)
+                    .attr('y', -16)
+                    .attr('dy', '1em')
+                    .attr('font-size', '0.5em')
+                    .attr('text-anchor', 'end') // Align text to the right
+
+            }
+            // Bind data to bars
+            barsGroup.selectAll('rect')
+                .data(data)
+                .join('rect') // Use join pattern for enter/update/exit handling
+                .attr('x', (d, i) => widthScale(i)) // Calculate x position using widthScale
+                .attr('y', d => 20 - heightScale(d)) // Align bars to the bottom
+                .attr('width', widthScale.bandwidth()) // Set bar width
+                .attr('height', d => heightScale(d)) // Set bar height
+                .attr('fill', d3.hcl(200, 1, 40))
+                .raise();
         }
 
         let insertDirectionGlyph = (selection, cIdx, directionSample, width, leftCol, firstOne) => {
@@ -317,8 +326,12 @@ export default class BiTree extends Component {
                 // .attr('stroke', 'black')
                 // .attr('stroke-width', 0.1)
 
+            let glyphG = selection.append('g')
+
             // Append a `g` element to hold the bars
-            const barsGroup = selection.append('g');
+            const barsGroup = glyphG.append('g');
+            const tickGroup = glyphG.append('g');
+            tickGroup.lower()
 
             // Bind data to bars
             barsGroup.selectAll('rect')
@@ -332,12 +345,11 @@ export default class BiTree extends Component {
                 .raise();
 
             // Append ticks (lines and labels)
-            const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
+            // const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
+            const tickValues = [(this.state.magmin + this.state.magmax) / 3, (this.state.magmin + this.state.magmax) * 2 / 3]; // 2 ticks
             const tickScale = d3.scaleLinear()
                 .domain([this.state.magmin, this.state.magmax])
                 .range([20, 0]); // Align with the bar chart's width
-
-            const tickGroup = selection.append('g');
 
             if (1 === 1) {
                 // Add vertical tick lines
@@ -369,6 +381,16 @@ export default class BiTree extends Component {
                     .attr('stroke-width', 0.5)
                     .attr('stroke-dasharray', '10,10') // Optional dashed lines for ticks
                     .lower()
+
+                tickGroup
+                    .append('text')
+                    .text("Direction magnitudes")
+                    .attr('x', 16)
+                    .attr('y', -16)
+                    .attr('dy', '1em')
+                    .attr('font-size', '0.5em')
+                    .attr('text-anchor', 'end') // Align text to the right
+                    .attr('transform', 'rotate(-90)')
             }
         }
 

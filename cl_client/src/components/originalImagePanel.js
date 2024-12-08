@@ -17,7 +17,7 @@ export default class OriginalImagePanel  extends Component {
             size: null,
             paddingInner: 0.01,
             paddingOuter: 0.01,
-            width: 125,
+            width: 130,
             methodColorScale: null
         }
 
