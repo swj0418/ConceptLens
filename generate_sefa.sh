@@ -1,9 +1,7 @@
 method="sefakmc"
 LAYERS="early_0 early_1 middle_0 middle_1 late_0 late_1"
-#LAYERS="middle_0"
-APPLICATION="global"
-DOMAINS="s2_celeba256"
-#DOMAINS="s2_ffhq256"
+APPLICATION="layerwise"
+DOMAINS="s2_ffhq256"
 
 ### Generation
 for domain in ${DOMAINS}

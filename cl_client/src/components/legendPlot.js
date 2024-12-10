@@ -272,18 +272,22 @@ function arcmapLegend(
             .attr(
                 "transform",
                 "translate(" +
-                (size + 20 * px) +
+                (size + 30 * px) + // 20
                 "," +
-                (40 * px + size / 2) +
+                (50 * px + size / 2) + // 40
                 ")rotate(-60)"
             )
             .text(utitle);
 
         var valueDomain =
             scale && scale.quantize ? scale.quantize().valueDomain() : [0, 1];
-        const vStep = (valueDomain[1] - valueDomain[0]) / (inverted[0].length - 6);
+        // const vStep = (valueDomain[1] - valueDomain[0]) / (inverted[0].length - 6);
+        const vStep = (valueDomain[1] - valueDomain[0]) / 2;
         // console.log("Value domain: ", valueDomain, " V step: ", vStep)
-        const vTicks = d3.range(valueDomain[0], valueDomain[1] + vStep, vStep);
+        // const vTicks = d3.range(valueDomain[0], valueDomain[1] + vStep, vStep);
+        const vTicks = d3.range(valueDomain[0], valueDomain[1]+0.0001, vStep);
+        // console.log(valueDomain, vStep, inverted)
+        // const vTicks = d3.range(valueDomain[0], valueDomain[1] + 5, 5);
 
         const vAxisScale = d3.scaleLinear().range([0, size]).domain(valueDomain);
         const valueFormat = fmat ? d3.format(fmat) : vAxisScale.tickFormat(vTicks.length - 1);

@@ -14,19 +14,29 @@ export default class ToggledBar extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        /*
-            Whenever props change, this function will be invoked.
-         */
-        const {positionalHierarchyDirection, methodColorScale, size, translate} = nextProps;
+        const { positionalHierarchyDirection, methodColorScale, size, translate } = nextProps;
 
-        let leafNodes = null
+        let leafNodes = [];
         try {
-            leafNodes = accumulateLeafNodesBudget(positionalHierarchyDirection)
+            leafNodes = accumulateLeafNodesBudget(positionalHierarchyDirection) || [];
         } catch (e) {
-
+            // console.error("Error accumulating leaf nodes:", e);
         }
 
-        return {positionalHierarchyDirection, leafNodes, size, translate, methodColorScale};
+        return { positionalHierarchyDirection, leafNodes, size, translate, methodColorScale };
+    }
+
+    componentDidMount() {
+        this.drawComponent();
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (
+            prevState.positionalHierarchyDirection !== this.state.positionalHierarchyDirection ||
+            prevState.leafNodes !== this.state.leafNodes
+        ) {
+            this.drawComponent();
+        }
     }
 
     drawComponent() {
@@ -34,47 +44,57 @@ export default class ToggledBar extends Component {
             return
 
         // d3.select(this.gref.current).selectAll('rect').clear()
+        const layerPatterns = {
+          early: 'url(#diagonal-lines)', // Apply 빗금 pattern
+          middle: 'url(#cross-hatch)',   // Apply X's pattern
+          late: 'url(#solid-color)',     // Apply solid color
+        };
 
-        d3.select(this.gref.current).selectAll()
-            .data(this.state.leafNodes)
-            .join('rect')
-            .attr('width', (this.state.size[0] / this.state.leafNodes.length) / 1.0)
-            .attr('height', this.state.size[1])
-            .attr('x', (d, i) => {
-                return (this.state.size[0] / this.state.leafNodes.length) * i
-            })
-            .attr('y', 0)
-            .attr('fill', (d, i) => {
-                let [domainName, methodName, applicationName, layerName, layerSubName] = splitExperimentName(d.expName)
-                methodName = methodName + ' ' + applicationName
+        const { leafNodes, size } = this.state;
+        const { methodColorScale } = this.props;
 
-                let color = d3.hcl(
-                    this.props.methodColorScale.hue(methodName),
-                    this.props.methodColorScale.chr(methodName),
-                    this.props.methodColorScale.lum(methodName) - this.props.methodColorScale.lay(layerName))
+        d3.select(this.gref.current)
+          .selectAll('g')
+          .data(leafNodes)
+          .join('g') // Create groups for each leaf node
+          .attr('transform', (d, i) => `translate(${(size[0] / leafNodes.length) * i}, 0)`)
+          .each(function (d, i) {
+            // Use splitExperimentName to extract details
+            const [domainName, methodName, applicationName, layerName] = splitExperimentName(d.expName);
 
-                // let color = d3.hcl(
-                //     this.props.methodColorScale.hue(largest),
-                //     this.props.methodColorScale.chr(largest),
-                //     this.props.methodColorScale.lum(largest) - this.props.methodColorScale.lay(layerName))
+            // Compute color based on methodName and layerName
+            const color = d3.hcl(
+              methodColorScale.hue(methodName),
+              methodColorScale.chr(methodName),
+              methodColorScale.lum(methodName) - methodColorScale.lay(layerName)
+              // methodColorScale.lum(methodName) - 10
+            );
 
-                return color
+            // Determine pattern based on layerName
+            const pattern = layerName === 'early' ? 'url(#horizontal-lines)' :
+                            layerName === 'middle' ? 'url(#vertical-lines)' : null;
 
-            })
-            // .attr('opacity', 0.92)
-            // .style('mix-blend-mode', 'multiply')
+            // Append background color rectangle
+            d3.select(this).append('rect')
+              .attr('width', (size[0] / leafNodes.length) / 1.0)
+              .attr('height', size[1])
+              .attr('fill', color);
 
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.positionalHierarchyDirection !== this.state.positionalHierarchyDirection)
-            return true
+            // Append overlay pattern rectangle (if applicable)
+            // if (pattern) {
+            //   d3.select(this).append('rect')
+            //     .attr('width', (size[0] / leafNodes.length) / 1.0)
+            //     .attr('height', size[1])
+            //     .attr('fill', pattern)
+            //     .attr('fill-opacity', 0.9) // Adjust transparency if needed
+            //       .raise()
+            // }
+          });
     }
 
     render() {
-        this.drawComponent()
         return (
-            <g ref={this.gref} transform={`translate(${this.state.translate[0]}, ${this.state.translate[1]})`} onClick={this.props.onclick}/>
-        )
+            <g ref={this.gref} transform={`translate(${this.state.translate[0]}, ${this.state.translate[1]})`} onClick={this.props.onclick} />
+        );
     }
 }

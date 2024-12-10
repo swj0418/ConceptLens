@@ -22,7 +22,7 @@ torch.set_warn_always(False)
 SERVED_DATA_ROOT = 'served_data'
 torch.set_printoptions(precision=3, sci_mode=False)
 encoder.FLOAT_REPR = lambda o: format(o, '.2f')
-node_size_minimum_control = 2
+node_size_minimum_control = 4
 node_size_divisor_global = 40
 node_variance_threshold = 1.0  # Go over this variance then do not merge.
 
@@ -290,11 +290,14 @@ def direction_hierarchy_selection(request):
     data = json.loads(request.body)
     experiment_names = data['experiment_names']
     code_tree = data['code_tree']
+    unsorted_code_indices = data['code_indices']
+    unsorted_direction_indices = data['direction_indices']
     code_indices = sorted(data['code_indices'])  # For computing sub-selection mag and var.
     direction_indices = sorted(data['direction_indices'])
     print("============= Direction Hierarchy Selection Event =============")
     print(f"Code selection made: {code_indices[:10]}...")
     print(f"Direction selection made: {direction_indices[:10]}...")
+    print(f"Direction selection made Unsorted: {unsorted_direction_indices[:10]}...")
 
     # For de-selection error handling. This is not a permanent solution.
     if len(direction_indices) == 0:
@@ -349,20 +352,40 @@ def direction_hierarchy_selection(request):
     all_mag_norms = torch.norm(all_mag_features, dim=-1)
     min_mag, max_mag = torch.min(all_mag_norms), torch.max(all_mag_norms)
     contributions = compute_self_magnitude(direction_indices, code_indices, magnitude_norms)
+    # contributions = compute_self_magnitude(unsorted_direction_indices, unsorted_code_indices, magnitude_norms)
 
     # Tree counting and trimming for ready-visualization data. TODO: These processes can be consolidated later for less tree traversal.
     trees.remove_leaves(code_tree)
     trees.count(code_tree)
     trees.tree_trimming(code_tree, node_size_minimum_control, mode='size')
 
+    # newcontrib = []
+    # for k, v in contributions.items():
+    #     newcontrib.append({
+    #         'code': k[0],
+    #         'direction': k[1],
+    #         'mag_contribution': v['mag_contribution'],
+    #         'var_contribution': v['mag_contribution']
+    #     })
+
+    # Create a map for unsorted_code_indices to their original indices
+    unsorted_code_index_map = {code: idx for idx, code in enumerate(unsorted_code_indices)}
+
+    # Populate newcontrib
     newcontrib = []
     for k, v in contributions.items():
         newcontrib.append({
             'code': k[0],
             'direction': k[1],
             'mag_contribution': v['mag_contribution'],
-            'var_contribution': v['mag_contribution']
+            'var_contribution': v['mag_contribution'],
         })
+
+    # Sort newcontrib by the order in unsorted_code_indices
+    newcontrib.sort(key=lambda x: unsorted_code_index_map.get(x['code'], float('inf')))
+
+    for v in newcontrib:
+        print(v['direction'])
 
     if np.isnan(mag):
         mag = 0
@@ -490,6 +513,8 @@ def code_hierarchy_selection(request):
     data = json.loads(request.body)
     experiment_names = data['experiment_names']
     direction_tree = data['direction_tree']
+    unsorted_code_indices = data['code_indices']
+    unsorted_direction_indices = data['direction_indices']
     code_indices = sorted(data['code_indices'])
     direction_indices = sorted(data['direction_indices'])
     print("============= Code Hierarchy Selection Event =============")
@@ -552,6 +577,7 @@ def code_hierarchy_selection(request):
     all_mag_norms = torch.norm(all_mag_features, dim=-1)
     min_mag, max_mag = torch.min(all_mag_norms), torch.max(all_mag_norms)
     contributions = compute_self_magnitude(direction_indices, code_indices, magnitude_norms)
+    # contributions = compute_self_magnitude(unsorted_direction_indices, unsorted_code_indices, magnitude_norms)
 
     # Amend "leaves" fields plus more
     trees.remove_leaves(direction_tree)
@@ -559,6 +585,19 @@ def code_hierarchy_selection(request):
     trees.tree_trimming(direction_tree, node_size_minimum_control, mode='size')
     node_magnitudes, node_variances = trees.collect_visleaf_coherence(direction_tree, target_depth=7)
 
+    # newcontrib = []
+    # for k, v in contributions.items():
+    #     newcontrib.append({
+    #         'code': k[0],
+    #         'direction': k[1],
+    #         'mag_contribution': v['mag_contribution'],
+    #         'var_contribution': v['mag_contribution'],
+    #     })
+
+    # Create a map for unsorted_code_indices to their original indices
+    unsorted_code_index_map = {code: idx for idx, code in enumerate(unsorted_code_indices)}
+
+    # Populate newcontrib
     newcontrib = []
     for k, v in contributions.items():
         newcontrib.append({
@@ -567,6 +606,9 @@ def code_hierarchy_selection(request):
             'mag_contribution': v['mag_contribution'],
             'var_contribution': v['mag_contribution'],
         })
+
+    # Sort newcontrib by the order in unsorted_code_indices
+    newcontrib.sort(key=lambda x: unsorted_code_index_map.get(x['code'], float('inf')))
 
     resp = json.dumps({
         'directionTree': direction_tree,

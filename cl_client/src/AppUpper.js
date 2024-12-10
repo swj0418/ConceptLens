@@ -25,7 +25,7 @@ const EXPERIMENTS = {
         {id: "s2_ffhq256-sefakmc-global-late_0", name: "FFHQ SeFA Global Late 0"},
         {id: "s2_ffhq256-sefakmc-global-late_1", name: "FFHQ SeFA Global Late 1"},
     ],
-    "Wild 512 Vector Arithmetic Global (L14)": [
+    "Wild 512 VA Global": [
         {id: "s2_wild512-vac-global-early_0", name:  "FFHQ VAC Global Early 0"},
         {id: "s2_wild512-vac-global-early_1", name:  "FFHQ VAC Global Early 1"},
         {id: "s2_wild512-vac-global-middle_0", name: "FFHQ VAC Global Middle 0"},
@@ -34,7 +34,26 @@ const EXPERIMENTS = {
         {id: "s2_wild512-vac-global-late_0", name:   "FFHQ VAC Global Late 0"},
         {id: "s2_wild512-vac-global-late_1", name:   "FFHQ VAC Global Late 1"},
     ],
-    "Wild 512 Vector Arithmetic Layerwise (L14)": [
+    "Wild 512 SeFA Global": [
+        {id: "s2_wild512-sefakmc-global-early_0", name:  "FFHQ SeFA Global Early 0"},
+        {id: "s2_wild512-sefakmc-global-early_1", name:  "FFHQ SeFA Global Early 1"},
+        {id: "s2_wild512-sefakmc-global-middle_0", name: "FFHQ SeFA Global Middle 0"},
+        {id: "s2_wild512-sefakmc-global-middle_1", name: "FFHQ SeFA Global Middle 1"},
+        {id: "s2_wild512-sefakmc-global-middle_2", name: "FFHQ SeFA Global Middle 2"},
+        {id: "s2_wild512-sefakmc-global-late_0", name:   "FFHQ SeFA Global Late 0"},
+        {id: "s2_wild512-sefakmc-global-late_1", name:   "FFHQ SeFA Global Late 1"},
+    ],
+    "Wild 512 GS Global": [
+        {id: "s2_wild512-ganspacekmc-global-early_0", name:  "FFHQ GanSpace Global Early 0"},
+        {id: "s2_wild512-ganspacekmc-global-early_1", name:  "FFHQ GanSpace Global Early 1"},
+        {id: "s2_wild512-ganspacekmc-global-middle_0", name: "FFHQ GanSpace Global Middle 0"},
+        {id: "s2_wild512-ganspacekmc-global-middle_1", name: "FFHQ GanSpace Global Middle 1"},
+        {id: "s2_wild512-ganspacekmc-global-middle_2", name: "FFHQ GanSpace Global Middle 2"},
+        {id: "s2_wild512-ganspacekmc-global-late_0", name:   "FFHQ GanSpace Global Late 0"},
+        {id: "s2_wild512-ganspacekmc-global-late_1", name:   "FFHQ GanSpace Global Late 1"},
+        {id: "s2_wild512-ganspacekmc-global-late_1", name:   "FFHQ GanSpace Global Late 1"},
+    ],
+    "Wild 512 Vector Arithmetic Layerwise": [
         {id: "s2_wild512-vac-layerwise-early_0", name:  "FFHQ VAC Layerwise Early 0"},
         {id: "s2_wild512-vac-layerwise-early_1", name:  "FFHQ VAC Layerwise Early 1"},
         {id: "s2_wild512-vac-layerwise-middle_0", name: "FFHQ VAC Layerwise Middle 0"},
@@ -251,15 +270,21 @@ export default class AppUpper extends Component {
             clusteringMethod: 'complete',
             pairwiseMetric: 'cosine',
 
-            // Vis
+            // Teaser setting
+            height: 640,
+            width: 1200,
+
+            // Normal setting
             // height: 960, // 640
-            height: 1080, // 640
             // width: 1200,
-            width: 1440,
+
+            // Large setting
+            // height: 1080, // 640
+            // width: 1440,
             // icicleSize: 125,
             icicleSize: 160,
             settingWidth: 0,
-            toggledBarSize: 8,
+            toggledBarSize: 12,
             originalImagePlotSize: 150,
             imageSize: 100,
             oriGap: 10,
@@ -353,7 +378,7 @@ export default class AppUpper extends Component {
     }
 
     render() {
-        let toggledBarHeight = 8;
+        let toggledBarHeight = this.state.toggledBarSize;
         return (
             <Container fluid>
                 <br /><br />

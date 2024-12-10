@@ -44,7 +44,9 @@ export default class BiTree extends Component {
             visDepth,
             contributions,
             magmin,
-            magmax
+            magmax,
+            codeSelectionOrder,
+            directionSelectionOrder
         } = nextProps;
 
 
@@ -83,7 +85,9 @@ export default class BiTree extends Component {
             codeGroupedMagnitude,
             directionGroupedMagnitude,
             magmin,
-            magmax
+            magmax,
+            codeSelectionOrder,
+            directionSelectionOrder
         };
     }
 
@@ -127,24 +131,25 @@ export default class BiTree extends Component {
 
         let glyphCodeDrawn = 0
         let glyphDirectionDrawn = 0
-        const methodColorScale = {
-            'hue': d3.scaleOrdinal(
-                ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-                [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 30, 90, 150, 210]
-            ),
-            'chr': d3.scaleOrdinal(
-                ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-                [60, 70, 80, 50, 60, 70, 80, 90, 60, 70, 50, 80, 90, 70]
-            ),
-            'lum': d3.scaleOrdinal(
-                ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-                [40, 50, 60, 70, 80, 60, 70, 80, 50, 60, 40, 50, 60, 70]
-            ),
-            'lay': d3.scaleOrdinal(
-                ['early', 'middle', 'late'],
-                [0, 40, 60]
-            ),
-        }
+        // const methodColorScale = {
+        //     'hue': d3.scaleOrdinal(
+        //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
+        //         [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 30, 90, 150, 210]
+        //     ),
+        //     'chr': d3.scaleOrdinal(
+        //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
+        //         [60, 70, 80, 50, 60, 70, 80, 90, 60, 70, 50, 80, 90, 70]
+        //     ),
+        //     'lum': d3.scaleOrdinal(
+        //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
+        //         [40, 50, 60, 70, 80, 60, 70, 80, 50, 60, 40, 50, 60, 70]
+        //     ),
+        //     'lay': d3.scaleOrdinal(
+        //         ['early', 'middle', 'late'],
+        //         [0, 40, 60]
+        //     ),
+        // }
+        const methodColorScale = this.state.methodColorScale
 
         let getIndices = (codeIdx, dirIdx) => {
             let contrib = this.state.contributions.filter(d => d.direction === dirIdx && d.code === codeIdx)
@@ -177,14 +182,15 @@ export default class BiTree extends Component {
 
         let insertCodeGlyph = (selection, dIdx, codeSample, width, leftCol, firstOne) => {
             let data = []
-            // console.log(codeSample, dIdx, this.state.directionGroupedMagnitude)
             console.log(codeSample, dIdx, this.state.directionGroupedMagnitude)
             try {
-                // data = this.state.directionGroupedMagnitude[dIdx][1].map(d => d.mag_contribution)
-                data = this.state.directionGroupedMagnitude[dIdx][1]
-                    .filter(v => codeSample.has(v.code))
-                    .map(d => d.mag_contribution)
+                data = Array.from(codeSample).map(code => {
+                    const codeItem = this.state.directionGroupedMagnitude.filter(v => v[0] === dIdx)
+                    const item = codeItem[0][1].find(v => v.code === code);
+                    return item ? item.mag_contribution : null; // Or handle missing items as needed
+                });
             } catch (e) {
+                console.error(e);
             }
 
             // Define scales for height and width
@@ -288,23 +294,46 @@ export default class BiTree extends Component {
             }
             // Bind data to bars
             barsGroup.selectAll('rect')
-                .data(data)
-                .join('rect') // Use join pattern for enter/update/exit handling
-                .attr('x', (d, i) => widthScale(i)) // Calculate x position using widthScale
-                .attr('y', d => 20 - heightScale(d)) // Align bars to the bottom
-                .attr('width', widthScale.bandwidth()) // Set bar width
-                .attr('height', d => heightScale(d)) // Set bar height
-                .attr('fill', d3.hcl(200, 1, 40))
-                .raise();
+                    .data(data.map((d, i) => ({ value: d, index: i }))) // Add index to data
+                    .join('rect')
+                    .attr('x', (d) => widthScale(d.index))
+                    .attr('y', (d) => 20 - heightScale(d.value))
+                    .attr('width', widthScale.bandwidth())
+                    .attr('height', (d) => heightScale(d.value))
+                    .attr('fill', d3.hcl(200, 1, 40))
+                    .attr('class', (d) => `code-bar-${dIdx}-${d.index}`) // Use index from data
+                    .on('mouseover', function (event, d) {
+                        // Highlight the corresponding image
+                        const imageClass = `.image-${d.index}-${dIdx}`; // Match the image class
+                        console.log(imageClass)
+                        d3.selectAll(imageClass)
+                            .attr('opacity', 0.8) // Example highlight action
+                            .attr('stroke', 'gold') // Add a border
+                            .attr('stroke-width', 2);
+                    })
+                    .on('mouseout', function (event, d) {
+                        // Reset the image appearance
+                        const imageClass = `.image-${d.index}-${dIdx}`; // Match the image class
+                        d3.selectAll(imageClass)
+                            .attr('opacity', 1) // Reset opacity
+                            .attr('stroke', null) // Remove border
+                            .attr('stroke-width', null);
+                    });
         }
 
         let insertDirectionGlyph = (selection, cIdx, directionSample, width, leftCol, firstOne) => {
             let data = []
+            console.log("Direction Glyph: ", directionSample, cIdx, this.state.codeGroupedMagnitude)
+
             try {
-                data = this.state.codeGroupedMagnitude[cIdx][1]
-                    .filter(v => directionSample.has(v.direction))
-                    .map(d => d.mag_contribution)
+                data = Array.from(directionSample).map(direction => {
+                    const directionItem = this.state.codeGroupedMagnitude.filter(v => v[0] === cIdx)
+                    const item = directionItem[0][1].find(v => v.direction === direction);
+                    // const item = this.state.codeGroupedMagnitude[cIdx][1].find(v => v.direction === direction);
+                    return item ? item.mag_contribution : null; // Or handle missing items as needed
+                });
             } catch (e) {
+                console.error(e);
             }
 
             // Define scales for height and width
@@ -335,14 +364,30 @@ export default class BiTree extends Component {
 
             // Bind data to bars
             barsGroup.selectAll('rect')
-                .data(data)
-                .join('rect') // Use join pattern for enter/update/exit handling
-                .attr('x', d => 20 - widthScale(d)) // Align bars horizontally
-                .attr('y', (d, i) => placementScale(i)) // Calculate y position using placementScale
-                .attr('width', d => widthScale(d)) // Set bar width
-                .attr('height', placementScale.bandwidth()) // Set bar height
-                .attr('fill', d3.hcl(200, 1, 40))
-                .raise();
+                    .data(data.map((d, i) => ({ value: d, index: i }))) // Add index to data
+                    .join('rect')
+                    .attr('x', (d) => 20 - widthScale(d.value))
+                    .attr('y', (d) => placementScale(d.index))
+                    .attr('width', (d) => widthScale(d.value))
+                    .attr('height', placementScale.bandwidth())
+                    .attr('fill', d3.hcl(200, 1, 40))
+                    .attr('class', (d) => `direction-bar-${cIdx}-${d.index}`) // Use index from data
+                    .on('mouseover', function (event, d) {
+                        // Highlight the corresponding image
+                        const imageClass = `.image-${cIdx}-${d.index}`; // Match the image class
+                        d3.selectAll(imageClass)
+                            .attr('opacity', 0.8) // Example highlight action
+                            .attr('stroke', 'gold') // Add a border
+                            .attr('stroke-width', 2);
+                    })
+                    .on('mouseout', function (event, d) {
+                        // Reset the image appearance
+                        const imageClass = `.image-${cIdx}-${d.index}`; // Match the image class
+                        d3.selectAll(imageClass)
+                            .attr('opacity', 1) // Reset opacity
+                            .attr('stroke', null) // Remove border
+                            .attr('stroke-width', null);
+                    });
 
             // Append ticks (lines and labels)
             // const tickValues = [this.state.magmin, (this.state.magmin + this.state.magmax) / 2, this.state.magmax]; // 3 ticks
@@ -404,6 +449,8 @@ export default class BiTree extends Component {
         let directionToGlyph = []
         let codeGlyphToBeDrawn = false
         let directionGlyphToBeDrawn = false
+        let gloCodeIdx = 0
+        let gloDirIdx = 0
 
         // scales for individual boxes
         selection.each(function (d, i) {
@@ -490,6 +537,9 @@ export default class BiTree extends Component {
                                 horizontalScale.bandwidth(),
                                 xPos,
                                 yPos)
+                            .attr('class', (d, i) => {
+                                return `image-${gloCodeIdx}-${gloDirIdx}`
+                            } ); // Assign unique class
 
                         // Only when it is the first item in the vertical
                         let imageSizeAdjuster = 15
@@ -516,7 +566,9 @@ export default class BiTree extends Component {
                                 .raise()
                         }
                     }
+                    gloCodeIdx++
                 }
+                gloDirIdx++
             }
         })
         codeToGlyph = new Set(codeToGlyph)
@@ -577,7 +629,9 @@ export default class BiTree extends Component {
             if (codeLeaves.length < verticalCount) {
                 verticalCount = codeLeaves.length
             }
-
+            console.log("direction leaves: ", directionLeaves.map(v => v.name))
+            let directionOrdering = directionLeaves.map(v => v.name)
+            let codeOrdering = codeLeaves.map(v => v.name)
             if (topRow) {
                 for (var h = 0; h < horizontalCount; h++) {
                     let xPos = horizontalScale(h)
@@ -588,7 +642,8 @@ export default class BiTree extends Component {
                     selection
                         .append('g')
                         .attr('transform', `translate(${xPos}, ${yPos - 22})`)
-                        .call(insertCodeGlyph, glyphDirectionDrawn, codeToGlyph, horizontalScale.bandwidth(), leftCol, h === 0)
+                        // .call(insertCodeGlyph, glyphDirectionDrawn, codeToGlyph, horizontalScale.bandwidth(), leftCol, h === 0)
+                        .call(insertCodeGlyph, directionOrdering[h], codeToGlyph, horizontalScale.bandwidth(), leftCol, h === 0)
                     glyphDirectionDrawn++
                 }
             }
@@ -603,7 +658,7 @@ export default class BiTree extends Component {
                     selection
                         .append('g')
                         .attr('transform', `translate(${xPos - 22}, ${yPos})`)
-                        .call(insertDirectionGlyph, glyphCodeDrawn, directionToGlyph, horizontalScale.bandwidth(), topRow, v === 0)
+                        .call(insertDirectionGlyph, codeOrdering[v], directionToGlyph, horizontalScale.bandwidth(), topRow, v === 0)
                     glyphCodeDrawn++
                 }
             }

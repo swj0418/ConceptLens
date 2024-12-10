@@ -30,33 +30,6 @@ import MethodColorLegend from "./ConceptLensMethodColorLegendV2.svg"
 
 import colors from "d3-color";
 import {gatherWeaveScores} from "./helper_functions/gatherWeaveScores";
-import {click} from "@testing-library/user-event/dist/click";
-
-// function ramp(color, n = 512) {
-//     let dom = createRef()
-//     const canvas = dom.current.canvas(n, 1);
-//     const context = canvas.getContext("2d");
-//     canvas.style.margin = "0 -14px";
-//     canvas.style.width = "calc(100% + 28px)";
-//     canvas.style.height = "40px";
-//     canvas.style.imageRendering = "-moz-crisp-edges";
-//     canvas.style.imageRendering = "pixelated";
-//     for (let i = 0; i < n; ++i) {
-//         context.fillStyle = color(i / (n - 1));
-//         context.fillRect(i, 0, 1, 1);
-//     }
-//     return canvas;
-// }
-
-// export var colorScheme = new Array(3).concat(
-//     "e5f5f999d8c92ca25f",
-//     "edf8fbb2e2e266c2a4238b45",
-//     "edf8fbb2e2e266c2a42ca25f006d2c",
-//     "edf8fbccece699d8c966c2a42ca25f006d2c",
-//     "edf8fbccece699d8c966c2a441ae76238b45005824",
-//     "f7fcfde5f5f9ccece699d8c966c2a441ae76238b45005824",
-//     "f7fcfde5f5f9ccece699d8c966c2a441ae76238b45006d2c00441b"
-// ).map(colors);
 
 function colorsj(specifier) {
     var n = specifier.length / 6 | 0, colors = new Array(n), i = 0;
@@ -117,7 +90,7 @@ export default class App extends Component {
             width: null,
             icicleSize: null,
             settingWidth: 0,
-            toggledBarHeight: 8,
+            toggledBarHeight: 12,
             originalImagePlotSize: null,
             oriGap: 15,
             imageSize: null,
@@ -147,23 +120,22 @@ export default class App extends Component {
             // Contributions
             contributions: [],
 
-            // Color Scale
             methodColorScale: {
                 'hue': d3.scaleOrdinal(
-                    ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-                    [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 30, 90, 150, 210]
+                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw'],
+                    [15, 210, 320, 50, 280] // Slight adjustments to hues for better contrast
                 ),
                 'chr': d3.scaleOrdinal(
-                    ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-                    [60, 70, 80, 50, 60, 70, 80, 90, 60, 70, 50, 80, 90, 70]
+                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw'],
+                    [70, 75, 80, 65, 85] // Increased chroma for Cobalt Blue and Warm Red
                 ),
                 'lum': d3.scaleOrdinal(
-                    ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-                    [40, 50, 60, 70, 80, 60, 70, 80, 50, 60, 40, 50, 60, 70]
+                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw'],
+                    [45, 55, 65, 50, 60] // Larger luminance contrast for middle layers
                 ),
                 'lay': d3.scaleOrdinal(
                     ['early', 'middle', 'late'],
-                    [0, 40, 60]
+                    [0, 15, 30] // Middle layers now have higher contrast
                 ),
             },
 
@@ -1082,6 +1054,35 @@ export default class App extends Component {
             .range([110, 0])  // Radial bounds of the cone
             .clamp(true);  // Clamp to keep within radial bounds
 
+        const createPatterns = () => (
+          <defs>
+            {/* Diagonal lines (빗금) */}
+            <pattern id="diagonal-lines" width="8" height="8" patternUnits="userSpaceOnUse">
+              <path d="M0,0 L8,8" stroke="black" strokeWidth="1" />
+            </pattern>
+
+            {/* X's */}
+            <pattern id="cross-hatch" width="8" height="8" patternUnits="userSpaceOnUse">
+              <path d="M0,0 L8,8 M8,0 L0,8" stroke="black" strokeWidth="1" />
+            </pattern>
+
+            {/* Solid color for late layers */}
+            <pattern id="solid-color" width="10" height="10" patternUnits="userSpaceOnUse">
+              <rect width="10" height="10" fill="gray" />
+            </pattern>
+
+            {/* Horizontal lines */}
+            <pattern id="horizontal-lines" width={1} height={1} patternUnits={"userSpaceOnUse"}>
+              <path d={'M0,1 L2,1'} stroke={'black'} strokeWidth={0.8}></path>
+            </pattern>
+
+            {/* Vertical lines */}
+            <pattern id="vertical-lines" width={1} height={1} patternUnits={"userSpaceOnUse"}>
+              <path d={'M1,0 L1,2'} stroke={'black'} strokeWidth={0.8}></path>
+            </pattern>
+          </defs>
+        );
+
         return (
             <div className={'container'}>
                 {/* backgroundColor: "rgba(0, 0, 0, .05)" */}
@@ -1145,6 +1146,7 @@ export default class App extends Component {
                         <svg ref={this.svgRef}
                              width={this.state.width + this.state.originalImagePlotSize + this.state.oriGap + mainVisTranslation[0] + 5}
                              height={this.state.height + mainVisTranslation[1]}>
+                            {createPatterns()}
 
                             <g width={this.state.width} height={mainVisTranslation[1]}>
                                 <text transform={`translate(${verticalIciclePlotSize[0] + (horizontalIciclePlotSize[0] / 2)}, ${mainVisTranslation[1] / 2})`}
@@ -1241,6 +1243,8 @@ export default class App extends Component {
                                     contributions={this.state.contributions}
                                     magmin={this.state.magmin}
                                     magmax={this.state.magmax}
+                                    codeSelectionOrder={this.state.selectedCodeLeaves}
+                                    directionSelectionOrder={this.state.selectedDirectionLeaves}
                                 />
 
                                 <ToggledBar
