@@ -122,22 +122,22 @@ if __name__ == '__main__':
     # process_images(input_folder, 'ldm', 'after', 80,
     #                walked_distance=25, num_sampling_runs=64, inversion=False)
 
-    input_folder = 'ldm_celeba256-vac-global-middle_0'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=20, interfere_end=35)
-
-    input_folder = 'ldm_celeba256-vac-global-middle_1'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=35, interfere_end=50)
-
-    input_folder = 'ldm_celeba256-vac-global-late_0'  # Replace with the path to your folder containing images
-
-    process_images(input_folder, 'ldm', 'after', 80,
-                   walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=50, interfere_end=65)
+    # input_folder = 'ldm_celeba256-vac-global-middle_0'  # Replace with the path to your folder containing images
+    #
+    # process_images(input_folder, 'ldm', 'after', 80,
+    #                walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=20, interfere_end=35)
 
     input_folder = 'ldm_celeba256-vac-global-late_1'  # Replace with the path to your folder containing images
 
     process_images(input_folder, 'ldm', 'after', 80,
                    walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=65, interfere_end=80)
+    #
+    # input_folder = 'ldm_celeba256-vac-global-middle_1'  # Replace with the path to your folder containing images
+    #
+    # process_images(input_folder, 'ldm', 'after', 80,
+    #                walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=35, interfere_end=50)
+    #
+    # input_folder = 'ldm_celeba256-vac-global-late_0'  # Replace with the path to your folder containing images
+    #
+    # process_images(input_folder, 'ldm', 'after', 80,
+    #                walked_distance=25, num_sampling_runs=64, inversion=False, interfere_start=50, interfere_end=65)
