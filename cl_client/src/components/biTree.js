@@ -182,7 +182,7 @@ export default class BiTree extends Component {
 
         let insertCodeGlyph = (selection, dIdx, codeSample, width, leftCol, firstOne) => {
             let data = []
-            console.log(codeSample, dIdx, this.state.directionGroupedMagnitude)
+            // console.log(codeSample, dIdx, this.state.directionGroupedMagnitude)
             try {
                 data = Array.from(codeSample).map(code => {
                     const codeItem = this.state.directionGroupedMagnitude.filter(v => v[0] === dIdx)
@@ -305,7 +305,6 @@ export default class BiTree extends Component {
                     .on('mouseover', function (event, d) {
                         // Highlight the corresponding image
                         const imageClass = `.image-${d.index}-${dIdx}`; // Match the image class
-                        console.log(imageClass)
                         d3.selectAll(imageClass)
                             .attr('opacity', 0.8) // Example highlight action
                             .attr('stroke', 'gold') // Add a border
@@ -323,7 +322,7 @@ export default class BiTree extends Component {
 
         let insertDirectionGlyph = (selection, cIdx, directionSample, width, leftCol, firstOne) => {
             let data = []
-            console.log("Direction Glyph: ", directionSample, cIdx, this.state.codeGroupedMagnitude)
+            // console.log("Direction Glyph: ", directionSample, cIdx, this.state.codeGroupedMagnitude)
 
             try {
                 data = Array.from(directionSample).map(direction => {
@@ -629,7 +628,7 @@ export default class BiTree extends Component {
             if (codeLeaves.length < verticalCount) {
                 verticalCount = codeLeaves.length
             }
-            console.log("direction leaves: ", directionLeaves.map(v => v.name))
+            // console.log("direction leaves: ", directionLeaves.map(v => v.name))
             let directionOrdering = directionLeaves.map(v => v.name)
             let codeOrdering = codeLeaves.map(v => v.name)
             if (topRow) {

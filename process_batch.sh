@@ -1,7 +1,9 @@
-METHODS="sefakmc ganspacekmc"
-LAYERS="early_0 early_1 middle_0 middle_1 middle_2 late_0 late_1"
+METHODS="sefakmc ganspacekmc vac svmw"
+LAYERS="early_0 early_1 middle_0 middle_1 middle_2"
 APPLICATION="global layerwise"
-DOMAINS="s2_wild512"
+DOMAINS="s3_landscape256"
+
+
 
 ### Generation
 for domain in ${DOMAINS}

@@ -1191,6 +1191,14 @@ export default class App extends Component {
                             </g>
 
                             <g>
+                                <ToggledBar
+                                    positionalHierarchyDirection={this.state.positionalHierarchyDirectionIcicle}
+                                    methodColorScale={this.state.methodColorScale}
+                                    size={toggledBarSize}
+                                    translate={toggledBarTranslate}
+                                    onclick={this.toggledBarClickListener}
+                                />
+
                                 <VerticalIciclePlot
                                     parentG={this.svgRef.current}
                                     positionalHierarchyData={this.state.positionalHierarchyCodeIcicle}
@@ -1247,13 +1255,7 @@ export default class App extends Component {
                                     directionSelectionOrder={this.state.selectedDirectionLeaves}
                                 />
 
-                                <ToggledBar
-                                    positionalHierarchyDirection={this.state.positionalHierarchyDirectionIcicle}
-                                    methodColorScale={this.state.methodColorScale}
-                                    size={toggledBarSize}
-                                    translate={toggledBarTranslate}
-                                    onclick={this.toggledBarClickListener}
-                                />
+
 
                                 <OriginalImagePanel
                                     parentG={this.svgRef}

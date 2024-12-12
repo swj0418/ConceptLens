@@ -11,6 +11,8 @@ import * as d3 from "d3";
 const EXPERIMENTS = {
     "CelebA 256": [
         {id: "ldm_celeba256-vac-global-all", name: "LDM CelebA VAC Global"},
+        {id: "ldm_celeba256-vac-global-middle_1", name: "LDM CelebA VAC Global Middle 1"},
+        {id: "ldm_celeba256-vac-global-late_1", name: "LDM CelebA VAC Global Late 1"},
         {id: "s2_celeba256-vac-global-early_0", name: "CelebA VAC Global Early 0"},
         {id: "s2_celeba256-sefakmc-global-early_0", name: "CelebA SeFA Global Early 0"},
         {id: "s2_celeba256-sefakmc-global-early_1", name: "CelebA SeFA Global Early 1"},
@@ -62,13 +64,62 @@ const EXPERIMENTS = {
         {id: "s2_wild512-vac-layerwise-late_0", name:   "FFHQ VAC Layerwise Late 0"},
         {id: "s2_wild512-vac-layerwise-late_1", name:   "FFHQ VAC Layerwise Late 1"},
     ],
-    "CLIP Model Comparison": [
-        {id: "s3df5_landscape256-vac-global-early_0", name: "FFHQ DF5 VAC Global Early 0"},
-        {id: "s3l14_landscape256-vac-global-early_0", name: "FFHQ L14 VAC Global Early 0"}
+    "Landscape 256 SeFA Global": [
+        {id: "s3_landscape256-sefakmc-global-early_0", name:  "Scene SeFA Global Early 0"},
+        {id: "s3_landscape256-sefakmc-global-early_1", name:  "Scene SeFA Global Early 1"},
+        {id: "s3_landscape256-sefakmc-global-middle_0", name:  "Scene SeFA Global Middle 0"},
+        {id: "s3_landscape256-sefakmc-global-middle_1", name:  "Scene SeFA Global Middle 1"},
+        {id: "s3_landscape256-sefakmc-global-middle_2", name:  "Scene SeFA Global Middle 2"},
     ],
-    "Large Code Base": [
-        {id: "s2_ffhq256-vac-global-early_1L", name: "Large Code Dataset"}
-    ]
+    "Landscape 256 GS Global": [
+        {id: "s3_landscape256-ganspacekmc-global-early_0", name:   "Scene GANSpace Global Early 0"},
+        {id: "s3_landscape256-ganspacekmc-global-early_1", name:   "Scene GANSpace Global Early 1"},
+        {id: "s3_landscape256-ganspacekmc-global-middle_0", name:  "Scene GANSpace Global Middle 0"},
+        {id: "s3_landscape256-ganspacekmc-global-middle_1", name:  "Scene GANSpace Global Middle 1"},
+        {id: "s3_landscape256-ganspacekmc-global-middle_2", name:  "Scene GANSpace Global Middle 2"},
+    ],
+    "Landscape 256 VAC Global": [
+        {id: "s3_landscape256-vac-global-early_0", name:   "Scene VA Global Early 0"},
+        {id: "s3_landscape256-vac-global-early_1", name:   "Scene VA Global Early 1"},
+        {id: "s3_landscape256-vac-global-middle_0", name:  "Scene VA Global Middle 0"},
+        {id: "s3_landscape256-vac-global-middle_1", name:  "Scene VA Global Middle 1"},
+        {id: "s3_landscape256-vac-global-middle_2", name:  "Scene VA Global Middle 2"},
+    ],
+    "Landscape 256 SVM Global": [
+        {id: "s3_landscape256-svmw-global-early_0", name:   "Scene SVM Global Early 0"},
+        {id: "s3_landscape256-svmw-global-early_1", name:   "Scene SVM Global Early 1"},
+        {id: "s3_landscape256-svmw-global-middle_0", name:  "Scene SVM Global Middle 0"},
+        {id: "s3_landscape256-svmw-global-middle_1", name:  "Scene SVM Global Middle 1"},
+        {id: "s3_landscape256-svmw-global-middle_2", name:  "Scene SVM Global Middle 2"},
+    ],
+    "Landscape 256 SeFA Layerwise": [
+        {id: "s3_landscape256-sefakmc-layerwise-early_0", name:   "Scene SeFA Layerwise Early 0"},
+        {id: "s3_landscape256-sefakmc-layerwise-early_1", name:   "Scene SeFA Layerwise Early 1"},
+        {id: "s3_landscape256-sefakmc-layerwise-middle_0", name:  "Scene SeFA Layerwise Middle 0"},
+        {id: "s3_landscape256-sefakmc-layerwise-middle_1", name:  "Scene SeFA Layerwise Middle 1"},
+        {id: "s3_landscape256-sefakmc-layerwise-middle_2", name:  "Scene SeFA Layerwise Middle 2"},
+    ],
+    "Landscape 256 GS Layerwise": [
+        {id: "s3_landscape256-ganspacekmc-layerwise-early_0", name:   "Scene GANSpace Layerwise Early 0"},
+        {id: "s3_landscape256-ganspacekmc-layerwise-early_1", name:   "Scene GANSpace Layerwise Early 1"},
+        {id: "s3_landscape256-ganspacekmc-layerwise-middle_0", name:  "Scene GANSpace Layerwise Middle 0"},
+        {id: "s3_landscape256-ganspacekmc-layerwise-middle_1", name:  "Scene GANSpace Layerwise Middle 1"},
+        {id: "s3_landscape256-ganspacekmc-layerwise-middle_2", name:  "Scene GANSpace Layerwise Middle 2"},
+    ],
+    "Landscape 256 VAC Layerwise": [
+        {id: "s3_landscape256-vac-layerwise-early_0", name:   "Scene VA Layerwise Early 0"},
+        {id: "s3_landscape256-vac-layerwise-early_1", name:   "Scene VA Layerwise Early 1"},
+        {id: "s3_landscape256-vac-layerwise-middle_0", name:  "Scene VA Layerwise Middle 0"},
+        {id: "s3_landscape256-vac-layerwise-middle_1", name:  "Scene VA Layerwise Middle 1"},
+        {id: "s3_landscape256-vac-layerwise-middle_2", name:  "Scene VA Layerwise Middle 2"},
+    ],
+    "Landscape 256 SVM Layerwise": [
+        {id: "s3_landscape256-svmw-layerwise-early_0", name:   "Scene SVM Layerwise Early 0"},
+        {id: "s3_landscape256-svmw-layerwise-early_1", name:   "Scene SVM Layerwise Early 1"},
+        {id: "s3_landscape256-svmw-layerwise-middle_0", name:  "Scene SVM Layerwise Middle 0"},
+        {id: "s3_landscape256-svmw-layerwise-middle_1", name:  "Scene SVM Layerwise Middle 1"},
+        {id: "s3_landscape256-svmw-layerwise-middle_2", name:  "Scene SVM Layerwise Middle 2"},
+    ],
 };
 
 // const EXPERIMENTS = {
@@ -271,12 +322,12 @@ export default class AppUpper extends Component {
             pairwiseMetric: 'cosine',
 
             // Teaser setting
-            height: 640,
-            width: 1200,
+            // height: 640,
+            // width: 1200,
 
             // Normal setting
-            // height: 960, // 640
-            // width: 1200,
+            height: 960, // 640
+            width: 1200,
 
             // Large setting
             // height: 1080, // 640

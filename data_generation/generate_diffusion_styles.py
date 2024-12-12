@@ -10,8 +10,8 @@ from diffusion_utils.dutils import tensor_to_pil
 if __name__ == '__main__':
     model_id = 'ldm'
     h_space = 'after'
-    num_inference_steps = 80
-    n_samples = 5000
+    num_inference_steps = 50
+    n_samples = 1000
     chunk_size = 50  # Number of samples per chunk
 
     output_root = 'styles'

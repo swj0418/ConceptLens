@@ -26,6 +26,8 @@ export default class HorizontalIciclePlot extends Component {
             .attr("y", "-5%")
             .attr("width", "250%")
             .attr("height", "140%")
+            // .attr("position", "relative")
+            // .attr("z-index", 999)
 
         filter.append("feOffset")
             .attr("result", "offOut")
@@ -55,6 +57,7 @@ export default class HorizontalIciclePlot extends Component {
         this.brushActionDuring = this.brushActionDuring.bind(this)
         this.clickAction = this.clickAction.bind(this)
         this.clickBarAction = this.clickBarAction.bind(this)
+        this.nodeHighlighting = this.nodeHighlighting.bind(this)
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -93,16 +96,9 @@ export default class HorizontalIciclePlot extends Component {
     }
 
     drawPlot() {
-        /*
-        To limit nodes to certain sizes, I can take two approaches.
-
-          1. Modify the data - merge small nodes into a leaf node
-          2. Selectively show nodes in the visualization.
-         */
         console.log("Drawing horizontal plot")
 
         const visDepth = this.props.visDepth
-        // const size = this.props.size
 
         let nodeG = d3.select(this.gref.current).selectAll("g")
             .data([this.props.positionalHierarchyData], d => d.name) // Supply a key to match the data.
@@ -133,50 +129,32 @@ export default class HorizontalIciclePlot extends Component {
             let exit = nodeG.exit()
             exit.remove()
         }
-        // Just variance
-        // const varianceScale = d3.scaleLinear().domain([this.props.stdFloor, (this.props.stdCeil + this.props.stdFloor) / 2, this.props.stdCeil]).range(['blue', 'white', 'red'])
-        // const varianceScale = d3.scaleLinear().domain([1.5, 2, 2.5]).range(['blue', 'white', 'red'])
-        // console.log([this.props.stdFloor, this.props.stdCeil])
-
-        // Give IDs
-        // d3.select(this.gref.current).selectAll('.iciclenode')
         const S = 0.15
         d3.select(this.gref.current).selectAll('.iciclenode')
             .append('rect')
-                .attr('x', 0)
-                .attr('y', (d, i) => {
-                    // return this.state.depthScale(d.depth)
-
-                    // Less height for non-leaf nodes. Leaf node to be fixed at {S}% of all available height, other
-                    // nodes share the remainder. The y position need to be adjusted.
-                    const Sx = (1 - S) / (this.props.visDepth - 1)
-                    const totDepth = this.state.depthScale.bandwidth() * this.props.visDepth // Total visDepth
-                    const shift = (totDepth * Sx) * d.depth
-                    return shift
-                })
-                .attr('width', d => d.size)
-                .attr('height', d => {
-                    // Less height for non-leaf nodes. Leaf node to be fixed at {S}% of all available height, other
-                    // nodes share the remainder.
-                    // return this.state.depthScale.bandwidth()
-
-                    // Total visDepth
-                    const totDepth = this.state.depthScale.bandwidth() * this.props.visDepth
-                    if (d.depth === this.props.visDepth) {
-                        return totDepth * S
-                    }
-                    return totDepth * ((1 - S) / (this.props.visDepth - 1))
-                })
-                .attr('stroke', 'black')
-                .attr('stroke-width', 0.75) // This would do nothing.
-                .attr('fill', d => {
-                    return this.state.colorScale(d.magnitude, d.var)
-                    // console.log(this.props.stdFloor, d.var, this.props.stdCeil)
-                    // return varianceScale(d.var)
-                })
-                .attr('rx', 5)
-                .on('click', this.clickAction)
-                .lower()
+            .attr('x', 0)
+            .attr('y', (d, i) => {
+                const Sx = (1 - S) / (this.props.visDepth - 1)
+                const totDepth = this.state.depthScale.bandwidth() * this.props.visDepth // Total visDepth
+                const shift = (totDepth * Sx) * d.depth
+                return shift
+            })
+            .attr('width', d => d.size)
+            .attr('height', d => {
+                // Total visDepth
+                const totDepth = this.state.depthScale.bandwidth() * this.props.visDepth
+                if (d.depth === this.props.visDepth) {
+                    return totDepth * S
+                }
+                return totDepth * ((1 - S) / (this.props.visDepth - 1))
+            })
+            .attr('stroke', 'black')
+            .attr('stroke-width', 0.75) // This would do nothing.
+            .attr('fill', d => {
+                return this.state.colorScale(d.magnitude, d.var)
+            })
+            .attr('rx', 5)
+            .on('click', this.clickAction)
 
         // Visual retention
         this.nodeHighlighting(this.props.getSelectionDirection().map(d => d.name))
@@ -190,40 +168,6 @@ export default class HorizontalIciclePlot extends Component {
         return arr;
     }
 
-    // nodeHighlighting(enabledSelection) {
-    //     d3.select(this.gref.current).selectAll('.iciclenode').select('rect')
-    //         .attr('stroke', 'black')
-    //         .style('filter', null)
-    //         .attr('stroke', d3.hcl(0, 0, 30))
-    //         .attr('stroke-width', 0.75)
-    //         .raise()
-    //         // .attr('stroke-width', d => {
-    //         //     return 0.75 + (d.weaveScore * 3)
-    //         // })
-    //
-    //     // Re-clustering (membership change)
-    //     d3.select(this.gref.current).selectAll('.iciclenode').filter(d => d.depth === this.props.visDepth)
-    //         .append('circle')
-    //         .attr('cx', d => d.size / 2)
-    //         .attr('cy', this.state.size[1] - 5.5)
-    //         // .attr('cy', this.state.size[1] - 23.5)
-    //         .attr('r', d => {
-    //             const r = ((d.weaveScore * 4) / this.props.weaveMax)
-    //             return isNaN(r) ? 0 : r
-    //         })
-    //         .style('fill', d3.hcl(360, 100, 70))
-    //
-    //     d3.select(this.gref.current).selectAll('.iciclenode').select('rect')
-    //         .filter(d => enabledSelection.includes(d.name))
-    //         .filter(d => d.depth === this.state.visDepth)
-    //         .style('filter', 'url(#shadow)')
-    //         // .attr('stroke', d3.hcl(120, 90, 40))
-    //         .attr('stroke', d3.hcl(50, 100, 75))
-    //         .attr('stroke-width', 4)
-    //         .raise()
-    //         // .attr('stroke', 'red')
-    // }
-
     nodeHighlighting(enabledSelection) {
         const gref = d3.select(this.gref.current);
 
@@ -231,19 +175,43 @@ export default class HorizontalIciclePlot extends Component {
         gref.selectAll('.iciclenode').select('rect')
             .attr('stroke', d3.hcl(0, 0, 30))
             .attr('stroke-width', 0.75)
-            .style('filter', null);
+            .style('filter', null)
 
         // Highlight selected nodes
-        gref.selectAll('.iciclenode')
-            .filter(d => enabledSelection.includes(d.name))
+        let toRaise = gref.selectAll('.iciclenode')
             .filter(d => enabledSelection.includes(d.name) && d.depth === this.state.visDepth)
-            .each(function () {
-                d3.select(this).raise(); // Raise the entire group
-            })
+
+        toRaise
             .select('rect')
-            .style('filter', 'url(#shadow)')
-            .attr('stroke', d3.hcl(50, 100, 75))
-            .attr('stroke-width', 4);
+            // .style('filter', 'inset(0px 0px 5px rgba(0, 0, 0, 0.5))')  // Adjust inset values for shadow size and opacity
+            // .style('filter', 'url(#shadow)')
+            // .attr('stroke', d3.hcl(50, 100, 75))
+            // .attr('stroke-width', 5)
+
+        toRaise
+            .each(function(d) {
+            const node = d3.select(this);
+
+
+            // Apply styles
+            node.select("rect")
+                .style("filter", "url(#shadow)")
+                .attr('stroke', d3.hcl(50, 100, 75))
+                .attr("stroke-width", 5);
+
+            // node.raise();
+            // node.attr("transform", d => `${node.attr("transform")} translate(-1,0)`);
+
+            // Remove and re-add the node to raise it
+            const parent = d3.select(this.parentNode);
+            parent.raise();
+            const pparent = d3.select(this.parentNode.parentNode);
+            pparent.raise();
+
+            node.remove(); // Remove the node
+            parent.node().appendChild(this); // Re-add the node at the end
+        });
+
 
         // Add circles for re-clustering nodes
         gref.selectAll('.iciclenode')

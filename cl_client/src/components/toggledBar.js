@@ -78,7 +78,7 @@ export default class ToggledBar extends Component {
             d3.select(this).append('rect')
               .attr('width', (size[0] / leafNodes.length) / 1.0)
               .attr('height', size[1])
-              .attr('fill', color);
+              .attr('fill', color).lower()
 
             // Append overlay pattern rectangle (if applicable)
             // if (pattern) {
