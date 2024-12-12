@@ -153,6 +153,7 @@ class ImageSetProcessorV3:
         shutil.rmtree(self.cache_dir)
 
     def run(self):
+        print("Processing: ", self.dataset_root)
         self._process_codes()
         self._process_walks()
 

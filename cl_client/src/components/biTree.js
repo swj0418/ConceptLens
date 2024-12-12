@@ -131,24 +131,6 @@ export default class BiTree extends Component {
 
         let glyphCodeDrawn = 0
         let glyphDirectionDrawn = 0
-        // const methodColorScale = {
-        //     'hue': d3.scaleOrdinal(
-        //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-        //         [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 30, 90, 150, 210]
-        //     ),
-        //     'chr': d3.scaleOrdinal(
-        //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-        //         [60, 70, 80, 50, 60, 70, 80, 90, 60, 70, 50, 80, 90, 70]
-        //     ),
-        //     'lum': d3.scaleOrdinal(
-        //         ["ae global", "vac global", "svmw", "sefakmc layerwise", "sefakmc global", "ganspacekmc layerwise", "ganspacekmc global", "vac layerwise", "vac_male layerwise", "vac_female layerwise", "svmw", "va layerwise", "ganspace_male", "ganspace_female"],
-        //         [40, 50, 60, 70, 80, 60, 70, 80, 50, 60, 40, 50, 60, 70]
-        //     ),
-        //     'lay': d3.scaleOrdinal(
-        //         ['early', 'middle', 'late'],
-        //         [0, 40, 60]
-        //     ),
-        // }
         const methodColorScale = this.state.methodColorScale
 
         let getIndices = (codeIdx, dirIdx) => {
@@ -545,7 +527,8 @@ export default class BiTree extends Component {
                         if (topRow && v === 0) {
                             // if (v === 0 && methodDrawnCount < horizontalCount * topGcount) {
                             let [domainName, methodName, applicationName, layerName, layerSubName] = splitExperimentName(expName)
-                            methodName = methodName + ' ' + applicationName
+                            // methodName = methodName + ' ' + applicationName
+                            // console.log("BI", expName)
 
                             selection
                                 .append('circle')

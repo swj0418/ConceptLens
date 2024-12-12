@@ -38,6 +38,7 @@ export default class MethodLegend  extends Component {
         let applicationNames = []
         let layerSplit = [0, 1, 2]
         for(const expName of this.state.experimentNames) {
+            console.log(expName)
             let [domainName, methodName, applicationName, layerName, layerSubName] = splitExperimentName(expName)
             methodNames.push(methodName + ' ' + applicationName)
         }
@@ -76,10 +77,17 @@ export default class MethodLegend  extends Component {
             .enter()
             .append('rect')
             .attr('fill', (d, i) => {
+                // return d3.hcl(
+                //     this.state.methodColorScale.hue(d.expName),
+                //     this.state.methodColorScale.chr(d.expName),
+                //     this.state.methodColorScale.lum(d.expName) - this.state.methodColorScale.lay(i),
+                // )
+                const methodName = d.expName.split(" ")[0]
+
                 return d3.hcl(
-                    this.state.methodColorScale.hue(d.expName),
-                    this.state.methodColorScale.chr(d.expName),
-                    this.state.methodColorScale.lum(d.expName) - this.state.methodColorScale.lay(i),
+                    this.state.methodColorScale.hue(methodName),
+                    this.state.methodColorScale.chr(methodName),
+                    this.state.methodColorScale.lum(methodName) - this.state.methodColorScale.lay(i),
                 )
             })
             .attr('width', xScale.bandwidth() / layerSplit.length)

@@ -22,7 +22,7 @@ torch.set_warn_always(False)
 SERVED_DATA_ROOT = 'served_data'
 torch.set_printoptions(precision=3, sci_mode=False)
 encoder.FLOAT_REPR = lambda o: format(o, '.2f')
-node_size_minimum_control = 4
+node_size_minimum_control = 3
 node_size_divisor_global = 40
 node_variance_threshold = 1.0  # Go over this variance then do not merge.
 

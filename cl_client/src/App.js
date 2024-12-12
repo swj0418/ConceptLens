@@ -122,16 +122,28 @@ export default class App extends Component {
 
             methodColorScale: {
                 'hue': d3.scaleOrdinal(
-                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw'],
-                    [15, 210, 320, 50, 280] // Slight adjustments to hues for better contrast
+                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw',
+                        'ganspacekmc_male', 'ganspacekmc_female'
+                    ],
+                    [15, 210, 80, 50, 280,
+                        80, 80
+                    ] // Slight adjustments to hues for better contrast
                 ),
                 'chr': d3.scaleOrdinal(
-                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw'],
-                    [70, 75, 80, 65, 85] // Increased chroma for Cobalt Blue and Warm Red
+                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw',
+                        'ganspacekmc_male', 'ganspacekmc_female'
+                    ],
+                    [70, 75, 80, 65, 85,
+                        80, 80
+                    ] // Increased chroma for Cobalt Blue and Warm Red
                 ),
                 'lum': d3.scaleOrdinal(
-                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw'],
-                    [45, 55, 65, 50, 60] // Larger luminance contrast for middle layers
+                    ['vac', 'sefakmc', 'ganspacekmc', 'ae', 'svmw',
+                        'ganspacekmc_male', 'ganspacekmc_female'
+                    ],
+                    [45, 55, 65, 50, 60,
+                        20, 80
+                    ] // Larger luminance contrast for middle layers
                 ),
                 'lay': d3.scaleOrdinal(
                     ['early', 'middle', 'late'],

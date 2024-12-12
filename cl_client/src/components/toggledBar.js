@@ -62,6 +62,7 @@ export default class ToggledBar extends Component {
             // Use splitExperimentName to extract details
             const [domainName, methodName, applicationName, layerName] = splitExperimentName(d.expName);
 
+            // console.log("TB", d.expName)
             // Compute color based on methodName and layerName
             const color = d3.hcl(
               methodColorScale.hue(methodName),
@@ -78,17 +79,8 @@ export default class ToggledBar extends Component {
             d3.select(this).append('rect')
               .attr('width', (size[0] / leafNodes.length) / 1.0)
               .attr('height', size[1])
-              .attr('fill', color).lower()
+              .attr('fill', color)
 
-            // Append overlay pattern rectangle (if applicable)
-            // if (pattern) {
-            //   d3.select(this).append('rect')
-            //     .attr('width', (size[0] / leafNodes.length) / 1.0)
-            //     .attr('height', size[1])
-            //     .attr('fill', pattern)
-            //     .attr('fill-opacity', 0.9) // Adjust transparency if needed
-            //       .raise()
-            // }
           });
     }
 

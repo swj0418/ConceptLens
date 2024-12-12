@@ -218,7 +218,8 @@ export default class HorizontalIciclePlot extends Component {
             // .filter(d => d.depth === this.props.visDepth)
             .append('circle')
             .attr('cx', d => d.size / 2)
-            .attr('cy', this.state.size[1] - 5.5)
+            // .attr('cy', this.state.size[1] - 7.5)
+            .attr('cy', this.state.size[1] - (0.15 * this.state.depthScale.bandwidth() * this.props.visDepth) / 2 )
             .attr('r', d => {
                 const r = ((d.weaveScore * 4) / this.props.weaveMax);
                 return isNaN(r) ? 0 : r;
