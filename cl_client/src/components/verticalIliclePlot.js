@@ -130,86 +130,6 @@ export default class VerticalIciclePlot extends Component {
 
         // Visual retention
         this.nodeHighlighting(this.props.getSelectionCode().map(d => d.name))
-
-        // Select visual leaf nodes
-        // let leaf_nodes = d3.select(this.gref.current)
-        //     .selectAll('.iciclenode')
-        //     .filter(d => d.depth === this.props.visDepth)
-        //
-        // // Gather all leaves and compute bar plot scale
-        // // For y scale and bar plot width.
-        // const leafRectHeights = leaf_nodes.selectAll('rect').nodes().map(node => node.getBBox().height)
-        // // console.log(leaf_nodes)
-        //
-        // // Scales
-        // const magnitudes = rootNodeG.data()[0].leaves.map(d => d.magnitude)
-        //
-        // const barScaleYs = []
-        // let count = 0
-        // for (const g of leaf_nodes) {
-        //     // console.log([0, d3.select(g).data()[0].leaves.length])
-        //     // console.log([0, leafRectHeights[count]])
-        //     const tmpScaleY = d3.scaleLinear()
-        //         .domain([0, d3.select(g).data()[0].leaves.length])
-        //         .range([0, leafRectHeights[count]])
-        //     barScaleYs.push(tmpScaleY)
-        //     count++
-        // }
-        // // const barScaleX = d3.scaleLinear().domain(d3.extent(magnitudes)).range([0, this.state.depthScale.bandwidth()])
-        // const barScaleX = d3.scaleLinear().domain([0, this.props.magnitudeCeil]).range([0, this.state.depthScale.bandwidth()])
-        //
-        // // Draw bar plots inside each g
-        // count = -1
-        // let count2 = -1
-        // let count3 = -1
-        // let count4 = -1
-        // // console.log(leaf_nodes)
-        // leaf_nodes.selectAll()
-        //     .data(d => {
-        //         count4++
-        //         return d.leaves
-        //     })
-        //     .enter()
-        //     .append('rect')
-        //     .attr('x', (d, i) => {
-        //         count2++
-        //         return this.state.depthScale.bandwidth() * this.state.visDepth +
-        //             (this.state.depthScale.bandwidth() - barScaleX(magnitudes[count2]))
-        //     })
-        //     .attr('y', (d, i) => {
-        //         count++
-        //         // console.log(count, i, d, barScaleYs[count])
-        //         return barScaleYs[count4](i)
-        //         return 0
-        //     })
-        //     .attr('height', (d, i) => {
-        //         // count4++
-        //         const availableHeight = leafRectHeights[count4];
-        //         const numberOfLeaves = d3.select(this.gref.current).selectAll('.iciclenode').filter(d => d.depth === this.props.visDepth).data()[count4].leaves.length;
-        //         return availableHeight / (numberOfLeaves + 0.2);
-        //     })
-        //     .attr('width', d => {
-        //         count3++
-        //         return barScaleX(magnitudes[count3])
-        //     })
-        //     .attr('fill', (d, i) => {
-        //         if (d.name == 83) {
-        //             return d3.hcl(100, 100, 100)
-        //         } else if (d.name == 5) {
-        //             return d3.hcl(200, 100, 100)
-        //         }
-        //         return d3.hcl(100, 0, 80)
-        //     })
-        //     .raise()
-        //     .on('mouseover', function() {
-        //         d3.select(this).classed('hover', true)
-        //     })
-        //     .on('mouseout', function() {
-        //         d3.select(this).classed('hover', false)
-        //     })
-        //     .on('click', this.clickBarAction)
-
-
     }
 
     removeItemOnce(arr, value) {
@@ -233,9 +153,30 @@ export default class VerticalIciclePlot extends Component {
             .style('filter', 'url(#shadowr)')
             // .attr('stroke', d3.hcl(120, 90, 40))
             .attr('stroke', d3.hcl(50, 100, 75))
-            .attr('stroke-width', 3)
-            .raise()
-        // .attr('stroke', 'red')
+            .attr('stroke-width', 5)
+
+            .each(function(d) {
+            const node = d3.select(this);
+
+
+            // Apply styles
+            node.select("rect")
+                .style("filter", "url(#shadowr)")
+                .attr('stroke', d3.hcl(50, 100, 75))
+                .attr("stroke-width", 5);
+
+            // node.raise();
+            // node.attr("transform", d => `${node.attr("transform")} translate(-1,0)`);
+
+            // Remove and re-add the node to raise it
+            const parent = d3.select(this.parentNode);
+            parent.raise();
+            const pparent = d3.select(this.parentNode.parentNode);
+            pparent.raise();
+
+            node.remove(); // Remove the node
+            parent.node().appendChild(this); // Re-add the node at the end
+        });
     }
 
     getUpdatedSelectionCodes(selection) {
