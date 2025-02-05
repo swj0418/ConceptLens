@@ -1,12 +1,5 @@
 # ConceptLens
 
-Here's a well-structured `README.md` for your **ConceptLens** GitHub project page:  
-
----
-
-```markdown
-# ConceptLens
-
 **ConceptLens** is a tool designed to analyze and interpret generative models via interactive visualization. It allows users to understand semantic concepts present in the model's latent space as well as study local behaviors of these semantic concepts with respect to a subset of datapoints. Furthermore, multiple methods for computing semantic concepts can be compared, which allows users to understand difference and commonality of the conmpared methods.
 
 ## 🚀 Features
